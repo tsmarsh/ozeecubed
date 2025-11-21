@@ -1,19 +1,23 @@
-use iced::widget::{button, column, container, row, text};
+use iced::widget::{button, column, container, row, slider, text};
 use iced::{Alignment, Element, Length};
 
 #[derive(Debug, Clone)]
 pub enum ControlMessage {
     IncreaseTimeScale,
     DecreaseTimeScale,
+    SetTimeScale(f32),
     IncreaseVoltageScale,
     DecreaseVoltageScale,
+    SetVoltageScale(f32),
     ToggleTrigger,
     ToggleTriggerEdge,
     IncreaseTriggerLevel,
     DecreaseTriggerLevel,
+    SetTriggerLevel(f32),
     TogglePersistence,
     IncreasePersistence,
     DecreasePersistence,
+    SetPersistenceFrames(u8),
 }
 
 #[derive(Debug, Clone)]
@@ -33,6 +37,10 @@ pub fn build_controls<'a>(
     persistence_enabled: bool,
     persistence_frames: usize,
 ) -> Element<'a, ControlMessage> {
+    // Convert time_per_div to logarithmic scale for slider (10µs to 1s)
+    // log10(0.00001) = -5, log10(1.0) = 0
+    let time_log = time_per_div.log10();
+
     let time_controls = column![
         text("Time/Div").size(14),
         row![
@@ -42,8 +50,17 @@ pub fn build_controls<'a>(
         ]
         .spacing(5)
         .align_y(Alignment::Center),
+        slider(-5.0..=0.0, time_log, |val| {
+            ControlMessage::SetTimeScale(10_f32.powf(val))
+        })
+        .step(0.01)
+        .width(Length::Fixed(150.0)),
     ]
     .spacing(5);
+
+    // Convert volts_per_div to logarithmic scale for slider (0.01V to 10V)
+    // log10(0.01) = -2, log10(10.0) = 1
+    let volts_log = volts_per_div.log10();
 
     let voltage_controls = column![
         text("Volts/Div").size(14),
@@ -54,6 +71,11 @@ pub fn build_controls<'a>(
         ]
         .spacing(5)
         .align_y(Alignment::Center),
+        slider(-2.0..=1.0, volts_log, |val| {
+            ControlMessage::SetVoltageScale(10_f32.powf(val))
+        })
+        .step(0.01)
+        .width(Length::Fixed(150.0)),
     ]
     .spacing(5);
 
@@ -72,6 +94,9 @@ pub fn build_controls<'a>(
         ]
         .spacing(5)
         .align_y(Alignment::Center),
+        slider(-10.0..=10.0, trigger_level, ControlMessage::SetTriggerLevel)
+            .step(0.1)
+            .width(Length::Fixed(150.0)),
     ]
     .spacing(5);
 
@@ -120,6 +145,11 @@ pub fn build_controls<'a>(
         ]
         .spacing(5)
         .align_y(Alignment::Center),
+        slider(1.0..=30.0, persistence_frames as f32, |val| {
+            ControlMessage::SetPersistenceFrames(val as u8)
+        })
+        .step(1.0)
+        .width(Length::Fixed(150.0)),
     ]
     .spacing(5);
 

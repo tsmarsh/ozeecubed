@@ -177,11 +177,17 @@ impl OzScope {
             ControlMessage::DecreaseTimeScale => {
                 self.waveform.decrease_time_scale();
             }
+            ControlMessage::SetTimeScale(value) => {
+                self.waveform.time_per_division = value;
+            }
             ControlMessage::IncreaseVoltageScale => {
                 self.waveform.increase_voltage_scale();
             }
             ControlMessage::DecreaseVoltageScale => {
                 self.waveform.decrease_voltage_scale();
+            }
+            ControlMessage::SetVoltageScale(value) => {
+                self.waveform.volts_per_division = value;
             }
             ControlMessage::ToggleTrigger => {
                 self.trigger_settings.toggle_enabled();
@@ -197,6 +203,9 @@ impl OzScope {
                 self.trigger_settings
                     .set_level(self.trigger_settings.level - 0.1);
             }
+            ControlMessage::SetTriggerLevel(value) => {
+                self.trigger_settings.set_level(value);
+            }
             ControlMessage::TogglePersistence => {
                 self.canvas.toggle_persistence();
             }
@@ -208,6 +217,9 @@ impl OzScope {
                 let current = self.canvas.get_persistence_frames();
                 self.canvas
                     .set_persistence_frames(current.saturating_sub(1));
+            }
+            ControlMessage::SetPersistenceFrames(value) => {
+                self.canvas.set_persistence_frames(value as usize);
             }
         }
     }
