@@ -96,6 +96,49 @@ impl WaveformData {
     pub fn decrease_voltage_scale(&mut self) {
         self.volts_per_division = (self.volts_per_division / 2.0).max(0.01);
     }
+
+    /// Calculate the frequency of the waveform using zero-crossing detection
+    pub fn calculate_frequency(&self) -> Option<f32> {
+        if self.samples.len() < 3 {
+            return None;
+        }
+
+        // Find zero crossings (rising edge)
+        let mut crossings = Vec::new();
+        for i in 1..self.samples.len() {
+            if self.samples[i - 1] < 0.0 && self.samples[i] >= 0.0 {
+                crossings.push(i);
+            }
+        }
+
+        // Need at least 2 crossings to calculate period
+        if crossings.len() < 2 {
+            return None;
+        }
+
+        // Calculate average period between crossings
+        let mut total_period = 0.0;
+        let mut count = 0;
+
+        for i in 1..crossings.len() {
+            let period_samples = crossings[i] - crossings[i - 1];
+            total_period += period_samples as f32;
+            count += 1;
+        }
+
+        if count == 0 {
+            return None;
+        }
+
+        let avg_period_samples = total_period / count as f32;
+        let period_seconds = avg_period_samples / self.sample_rate as f32;
+
+        if period_seconds > 0.0 {
+            Some(1.0 / period_seconds)
+        } else {
+            None
+        }
+    }
 }
 
 #[cfg(test)]
@@ -300,5 +343,44 @@ mod tests {
 
         let display_samples = waveform.get_display_samples(&settings);
         assert!(!display_samples.is_empty());
+    }
+
+    #[test]
+    fn test_calculate_frequency_440hz() {
+        let mut waveform = WaveformData::new(48000);
+
+        // Generate 440 Hz sine wave
+        let mut samples = vec![];
+        for i in 0..48000 {
+            // 1 second of 440 Hz
+            let t = i as f32 / 48000.0;
+            let sample = (2.0 * std::f32::consts::PI * 440.0 * t).sin();
+            samples.push(sample);
+        }
+        waveform.update_samples(samples);
+
+        let freq = waveform.calculate_frequency();
+        assert!(freq.is_some());
+
+        let measured = freq.unwrap();
+        // Allow 1% error tolerance
+        assert!((measured - 440.0).abs() < 5.0, "Expected ~440Hz, got {measured}");
+    }
+
+    #[test]
+    fn test_calculate_frequency_no_crossings() {
+        let mut waveform = WaveformData::new(48000);
+        // DC signal (no zero crossings)
+        waveform.update_samples(vec![1.0; 1000]);
+
+        let freq = waveform.calculate_frequency();
+        assert!(freq.is_none());
+    }
+
+    #[test]
+    fn test_calculate_frequency_empty() {
+        let waveform = WaveformData::new(48000);
+        let freq = waveform.calculate_frequency();
+        assert!(freq.is_none());
     }
 }

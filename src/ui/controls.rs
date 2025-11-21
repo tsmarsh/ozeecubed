@@ -18,6 +18,7 @@ pub fn build_controls<'a>(
     volts_per_div: f32,
     trigger_enabled: bool,
     trigger_level: f32,
+    frequency: Option<f32>,
 ) -> Element<'a, ControlMessage> {
     let time_controls = column![
         text("Time/Div").size(14),
@@ -61,8 +62,23 @@ pub fn build_controls<'a>(
     ]
     .spacing(5);
 
+    let measurements = column![
+        text("Measurements").size(14),
+        text(if let Some(freq) = frequency {
+            if freq >= 1000.0 {
+                format!("{:.2} kHz", freq / 1000.0)
+            } else {
+                format!("{freq:.1} Hz")
+            }
+        } else {
+            "-- Hz".to_string()
+        })
+        .size(12),
+    ]
+    .spacing(5);
+
     container(
-        row![time_controls, voltage_controls, trigger_controls]
+        row![time_controls, voltage_controls, trigger_controls, measurements]
             .spacing(20)
             .padding(10)
             .align_y(Alignment::Start),

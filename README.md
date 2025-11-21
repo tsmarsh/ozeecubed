@@ -125,7 +125,7 @@ OzeeCubed is built with a modular architecture:
 - [ ] Waveform persistence/decay effects (phosphor-like)
 
 #### Phase 3: Measurements & Analysis
-- [ ] Automatic frequency measurement
+- [x] Automatic frequency measurement
 - [ ] Peak-to-peak voltage display
 - [ ] RMS voltage calculation
 - [ ] Duty cycle measurement

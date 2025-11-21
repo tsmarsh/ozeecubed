@@ -92,11 +92,14 @@ impl OzScope {
     fn view(&self) -> Element<'_, Message> {
         let canvas = self.canvas.view(self.waveform.clone());
 
+        let frequency = self.waveform.calculate_frequency();
+
         let controls = build_controls(
             self.waveform.time_per_division,
             self.waveform.volts_per_division,
             self.trigger_settings.enabled,
             self.trigger_settings.level,
+            frequency,
         )
         .map(Message::Control);
 
