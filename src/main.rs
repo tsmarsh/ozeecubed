@@ -203,7 +203,8 @@ impl OzScope {
             }
             ControlMessage::DecreasePersistence => {
                 let current = self.canvas.get_persistence_frames();
-                self.canvas.set_persistence_frames(current.saturating_sub(1));
+                self.canvas
+                    .set_persistence_frames(current.saturating_sub(1));
             }
         }
     }

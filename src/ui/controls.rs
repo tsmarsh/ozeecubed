@@ -84,10 +84,8 @@ pub fn build_controls<'a>(
 
     let persistence_controls = column![
         text("Persistence").size(14),
-        row![
-            button(if persistence_enabled { "ON" } else { "OFF" })
-                .on_press(ControlMessage::TogglePersistence),
-        ]
+        row![button(if persistence_enabled { "ON" } else { "OFF" })
+            .on_press(ControlMessage::TogglePersistence),]
         .spacing(5),
         row![
             button("-").on_press(ControlMessage::DecreasePersistence),
