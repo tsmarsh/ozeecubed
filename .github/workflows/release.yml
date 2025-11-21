@@ -50,19 +50,19 @@ jobs:
         include:
           - os: ubuntu-latest
             target: x86_64-unknown-linux-gnu
-            artifact_name: ozeecubed
+            artifact_name: ozeecubed-gui
             asset_name: ozeecubed-linux-x86_64
           - os: macos-latest
             target: x86_64-apple-darwin
-            artifact_name: ozeecubed
+            artifact_name: ozeecubed-gui
             asset_name: ozeecubed-macos-x86_64
           - os: macos-latest
             target: aarch64-apple-darwin
-            artifact_name: ozeecubed
+            artifact_name: ozeecubed-gui
             asset_name: ozeecubed-macos-aarch64
           - os: windows-latest
             target: x86_64-pc-windows-msvc
-            artifact_name: ozeecubed.exe
+            artifact_name: ozeecubed-gui.exe
             asset_name: ozeecubed-windows-x86_64.exe
 
     steps:
@@ -86,7 +86,7 @@ jobs:
             libxcb-shape0-dev
 
       - name: Build release binary
-        run: cargo build --release --target ${{ matrix.target }}
+        run: cargo build --release --bin ozeecubed-gui --target ${{ matrix.target }}
 
       - name: Strip binary (Linux and macOS)
         if: matrix.os != 'windows-latest'

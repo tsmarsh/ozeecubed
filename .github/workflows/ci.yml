@@ -69,10 +69,10 @@ jobs:
             ${{ runner.os }}-cargo-build-target-
 
       - name: Run tests
-        run: cargo test --verbose
+        run: cargo test --workspace --verbose
 
       - name: Run tests (release mode)
-        run: cargo test --release --verbose
+        run: cargo test --workspace --release --verbose
 
   fmt:
     name: Formatting
@@ -140,13 +140,13 @@ jobs:
         include:
           - os: ubuntu-latest
             artifact_name: ozeecubed-linux
-            asset_path: target/release/ozeecubed
+            asset_path: target/release/ozeecubed-gui
           - os: macos-latest
             artifact_name: ozeecubed-macos
-            asset_path: target/release/ozeecubed
+            asset_path: target/release/ozeecubed-gui
           - os: windows-latest
             artifact_name: ozeecubed-windows
-            asset_path: target/release/ozeecubed.exe
+            asset_path: target/release/ozeecubed-gui.exe
 
     steps:
       - name: Checkout repository
@@ -191,7 +191,7 @@ jobs:
             ${{ runner.os }}-cargo-build-
 
       - name: Build release
-        run: cargo build --release --verbose
+        run: cargo build --release --bin ozeecubed-gui --verbose
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4

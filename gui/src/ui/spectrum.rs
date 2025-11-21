@@ -50,8 +50,9 @@ impl SpectrumCanvas {
 
         // Apply Hann window to reduce spectral leakage
         for (i, sample) in buffer.iter_mut().enumerate() {
-            let window = 0.5 * (1.0 - (2.0 * std::f32::consts::PI * i as f32 / fft_size as f32).cos());
-            *sample = *sample * window;
+            let window =
+                0.5 * (1.0 - (2.0 * std::f32::consts::PI * i as f32 / fft_size as f32).cos());
+            *sample *= window;
         }
 
         // Perform FFT
@@ -200,5 +201,8 @@ fn draw_spectrum(frame: &mut Frame, width: f32, height: f32, spectrum: &[f32]) {
     }
 
     let path = path_builder.build();
-    frame.stroke(&path, Stroke::default().with_color(waveform_color).with_width(2.0));
+    frame.stroke(
+        &path,
+        Stroke::default().with_color(waveform_color).with_width(2.0),
+    );
 }

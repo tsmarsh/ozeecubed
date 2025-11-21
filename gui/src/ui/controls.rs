@@ -3,8 +3,6 @@ use iced::{Alignment, Element, Length};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum LayoutMode {
-    ScopeOnly,
-    SpectrumOnly,
     SideBySide,
     Stacked,
 }
@@ -37,16 +35,25 @@ pub struct Measurements {
     pub duty_cycle: Option<f32>,
 }
 
+pub struct ControlState {
+    pub time_per_div: f32,
+    pub volts_per_div: f32,
+    pub trigger_enabled: bool,
+    pub trigger_level: f32,
+    pub persistence_enabled: bool,
+    pub persistence_frames: usize,
+}
+
 pub fn build_controls<'a>(
-    time_per_div: f32,
-    volts_per_div: f32,
-    trigger_enabled: bool,
-    trigger_level: f32,
+    state: &ControlState,
     measurements: &Measurements,
-    persistence_enabled: bool,
-    persistence_frames: usize,
-    layout_mode: LayoutMode,
 ) -> Element<'a, ControlMessage> {
+    let time_per_div = state.time_per_div;
+    let volts_per_div = state.volts_per_div;
+    let trigger_enabled = state.trigger_enabled;
+    let trigger_level = state.trigger_level;
+    let persistence_enabled = state.persistence_enabled;
+    let persistence_frames = state.persistence_frames;
     // Convert time_per_div to logarithmic scale for slider (10µs to 1s)
     // log10(0.00001) = -5, log10(1.0) = 0
     let time_log = time_per_div.log10();
@@ -166,18 +173,8 @@ pub fn build_controls<'a>(
     let layout_selector = column![
         text("Layout").size(14),
         row![
-            button(if layout_mode == LayoutMode::SideBySide {
-                "◧"
-            } else {
-                "◧"
-            })
-            .on_press(ControlMessage::SetLayoutMode(LayoutMode::SideBySide)),
-            button(if layout_mode == LayoutMode::Stacked {
-                "⬒"
-            } else {
-                "⬒"
-            })
-            .on_press(ControlMessage::SetLayoutMode(LayoutMode::Stacked)),
+            button("◧").on_press(ControlMessage::SetLayoutMode(LayoutMode::SideBySide)),
+            button("⬒").on_press(ControlMessage::SetLayoutMode(LayoutMode::Stacked)),
         ]
         .spacing(5),
     ]

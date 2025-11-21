@@ -6,7 +6,7 @@ use iced::widget::canvas::{self, Cache, Canvas, Frame, Geometry, Path, Program, 
 use iced::{Color, Point, Rectangle, Size, Theme};
 use std::collections::VecDeque;
 
-use crate::oscilloscope::WaveformData;
+use ozeecubed_core::oscilloscope::WaveformData;
 pub use spectrum::SpectrumCanvas;
 
 const GRID_GREEN: Color = Color::from_rgba(0.0, 1.0, 0.0, 0.3);
@@ -187,7 +187,7 @@ fn draw_waveform(frame: &mut Frame, size: Size, waveform: &WaveformData) {
     }
 
     // Get display samples (normalized)
-    let trigger_settings = crate::oscilloscope::TriggerSettings::default();
+    let trigger_settings = ozeecubed_core::oscilloscope::TriggerSettings::default();
     let points = waveform.get_display_samples(&trigger_settings);
 
     if points.is_empty() {

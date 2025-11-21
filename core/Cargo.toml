@@ -1,0 +1,13 @@
+[package]
+name = "ozeecubed_core"
+version = "0.1.0"
+edition = "2021"
+authors = ["OzeeCubed Contributors"]
+description = "Core oscilloscope and audio processing library for OzeeCubed"
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+cpal = "0.15"
+ringbuf = "0.4"
+bytemuck = { version = "1.14", features = ["derive"] }
+rustfft = "6.2"

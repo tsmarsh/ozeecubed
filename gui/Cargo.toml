@@ -1,0 +1,16 @@
+[package]
+name = "ozeecubed-gui"
+version = "0.1.0"
+edition = "2021"
+authors = ["OzeeCubed Contributors"]
+description = "Native GUI application for OzeeCubed oscilloscope"
+license = "MIT OR Apache-2.0"
+
+[[bin]]
+name = "ozeecubed-gui"
+path = "src/main.rs"
+
+[dependencies]
+ozeecubed_core = { path = "../core" }
+iced = { version = "0.13", features = ["canvas", "wgpu", "debug", "tokio"] }
+rustfft = "6.2"

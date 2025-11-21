@@ -1,17 +1,6 @@
-[package]
-name = "ozeecubed"
-version = "0.1.0"
-edition = "2021"
-authors = ["OzeeCubed Contributors"]
-description = "A GPU-accelerated oscilloscope for real-time audio visualization"
-license = "MIT OR Apache-2.0"
-
-[dependencies]
-iced = { version = "0.13", features = ["canvas", "wgpu", "debug", "tokio"] }
-cpal = "0.15"
-ringbuf = "0.4"
-bytemuck = { version = "1.14", features = ["derive"] }
-rustfft = "6.2"
+[workspace]
+members = ["core", "gui"]
+resolver = "2"
 
 [profile.release]
 opt-level = 3
