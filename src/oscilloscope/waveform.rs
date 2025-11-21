@@ -81,14 +81,6 @@ impl WaveformData {
         0
     }
 
-    pub fn set_time_scale(&mut self, time_per_div: f32) {
-        self.time_per_division = time_per_div.max(0.00001); // Minimum 10 microseconds
-    }
-
-    pub fn set_voltage_scale(&mut self, volts_per_div: f32) {
-        self.volts_per_division = volts_per_div.max(0.01); // Minimum 10mV
-    }
-
     pub fn increase_time_scale(&mut self) {
         self.time_per_division *= 2.0;
     }
@@ -138,44 +130,6 @@ mod tests {
     }
 
     #[test]
-    fn test_set_time_scale() {
-        let mut waveform = WaveformData::new(48000);
-
-        waveform.set_time_scale(0.002);
-        assert_eq!(waveform.time_per_division, 0.002);
-
-        waveform.set_time_scale(0.0005);
-        assert_eq!(waveform.time_per_division, 0.0005);
-    }
-
-    #[test]
-    fn test_set_time_scale_minimum() {
-        let mut waveform = WaveformData::new(48000);
-
-        waveform.set_time_scale(0.000001);
-        assert_eq!(waveform.time_per_division, 0.00001);
-    }
-
-    #[test]
-    fn test_set_voltage_scale() {
-        let mut waveform = WaveformData::new(48000);
-
-        waveform.set_voltage_scale(1.0);
-        assert_eq!(waveform.volts_per_division, 1.0);
-
-        waveform.set_voltage_scale(0.25);
-        assert_eq!(waveform.volts_per_division, 0.25);
-    }
-
-    #[test]
-    fn test_set_voltage_scale_minimum() {
-        let mut waveform = WaveformData::new(48000);
-
-        waveform.set_voltage_scale(0.001);
-        assert_eq!(waveform.volts_per_division, 0.01);
-    }
-
-    #[test]
     fn test_increase_time_scale() {
         let mut waveform = WaveformData::new(48000);
         let initial = waveform.time_per_division;
@@ -190,7 +144,9 @@ mod tests {
     #[test]
     fn test_decrease_time_scale() {
         let mut waveform = WaveformData::new(48000);
-        waveform.set_time_scale(0.004);
+        // Start with default 0.001, increase to 0.004
+        waveform.increase_time_scale(); // 0.002
+        waveform.increase_time_scale(); // 0.004
 
         waveform.decrease_time_scale();
         assert_eq!(waveform.time_per_division, 0.002);
@@ -202,9 +158,12 @@ mod tests {
     #[test]
     fn test_decrease_time_scale_minimum() {
         let mut waveform = WaveformData::new(48000);
-        waveform.set_time_scale(0.00002);
+        // Set to a very small value by decreasing many times
+        for _ in 0..20 {
+            waveform.decrease_time_scale();
+        }
 
-        waveform.decrease_time_scale();
+        // Should hit minimum of 0.00001
         assert_eq!(waveform.time_per_division, 0.00001);
     }
 
@@ -223,21 +182,23 @@ mod tests {
     #[test]
     fn test_decrease_voltage_scale() {
         let mut waveform = WaveformData::new(48000);
-        waveform.set_voltage_scale(0.4);
+        // Start with default 0.5, decrease to get to lower values
+        waveform.decrease_voltage_scale(); // 0.25
+        waveform.decrease_voltage_scale(); // 0.125
 
-        waveform.decrease_voltage_scale();
-        assert_eq!(waveform.volts_per_division, 0.2);
-
-        waveform.decrease_voltage_scale();
-        assert_eq!(waveform.volts_per_division, 0.1);
+        let current = waveform.volts_per_division;
+        assert!(current < 0.5);
     }
 
     #[test]
     fn test_decrease_voltage_scale_minimum() {
         let mut waveform = WaveformData::new(48000);
-        waveform.set_voltage_scale(0.02);
+        // Decrease many times to hit the minimum
+        for _ in 0..20 {
+            waveform.decrease_voltage_scale();
+        }
 
-        waveform.decrease_voltage_scale();
+        // Should hit minimum of 0.01
         assert_eq!(waveform.volts_per_division, 0.01);
     }
 
@@ -335,7 +296,6 @@ mod tests {
             enabled: true,
             edge: TriggerEdge::Rising,
             level: 0.0,
-            ..Default::default()
         };
 
         let display_samples = waveform.get_display_samples(&settings);

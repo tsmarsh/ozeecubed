@@ -1,4 +1,4 @@
-use ozeecubed::oscilloscope::trigger::{TriggerEdge, TriggerMode};
+use ozeecubed::oscilloscope::trigger::TriggerEdge;
 use ozeecubed::oscilloscope::{TriggerSettings, WaveformData};
 
 #[test]
@@ -22,7 +22,6 @@ fn test_oscilloscope_workflow() {
         enabled: true,
         edge: TriggerEdge::Rising,
         level: 0.0,
-        ..Default::default()
     };
 
     // Get display samples
@@ -112,7 +111,6 @@ fn test_trigger_edge_detection() {
         enabled: true,
         edge: TriggerEdge::Rising,
         level: 0.0,
-        ..Default::default()
     };
 
     let rising_samples = waveform.get_display_samples(&rising_settings);
@@ -122,7 +120,6 @@ fn test_trigger_edge_detection() {
         enabled: true,
         edge: TriggerEdge::Falling,
         level: 0.0,
-        ..Default::default()
     };
     let falling_samples = waveform.get_display_samples(&falling_settings);
 
@@ -137,7 +134,6 @@ fn test_trigger_settings_modifications() {
 
     // Test default state
     assert!(settings.enabled);
-    assert_eq!(settings.mode, TriggerMode::Auto);
     assert_eq!(settings.edge, TriggerEdge::Rising);
     assert_eq!(settings.level, 0.0);
 

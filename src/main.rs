@@ -22,10 +22,8 @@ struct OzScope {
     waveform: WaveformData,
     trigger_settings: TriggerSettings,
     canvas: WaveformCanvas,
-    #[allow(dead_code)]
-    audio_capture: Option<AudioCapture>,
-    #[allow(dead_code)]
-    audio_buffer: Arc<Mutex<Vec<f32>>>,
+    _audio_capture: Option<AudioCapture>,
+    _audio_buffer: Arc<Mutex<Vec<f32>>>,
     last_update: Instant,
 }
 
@@ -55,8 +53,8 @@ impl OzScope {
                 waveform: WaveformData::new(sample_rate),
                 trigger_settings: TriggerSettings::default(),
                 canvas: WaveformCanvas::new(),
-                audio_capture,
-                audio_buffer: Arc::new(Mutex::new(Vec::new())),
+                _audio_capture: audio_capture,
+                _audio_buffer: Arc::new(Mutex::new(Vec::new())),
                 last_update: Instant::now(),
             },
             Task::none(),

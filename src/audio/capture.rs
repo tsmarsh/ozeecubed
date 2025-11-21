@@ -5,11 +5,10 @@ use std::sync::{Arc, Mutex};
 
 const BUFFER_SIZE: usize = 48000; // 1 second at 48kHz
 
-#[allow(dead_code)]
 pub struct AudioCapture {
     _stream: Stream,
-    buffer: Arc<Mutex<ringbuf::HeapProd<f32>>>,
-    sample_rate: u32,
+    _buffer: Arc<Mutex<ringbuf::HeapProd<f32>>>,
+    _sample_rate: u32,
 }
 
 impl AudioCapture {
@@ -47,8 +46,8 @@ impl AudioCapture {
 
         Ok(AudioCapture {
             _stream: stream,
-            buffer: producer,
-            sample_rate,
+            _buffer: producer,
+            _sample_rate: sample_rate,
         })
     }
 
@@ -78,62 +77,5 @@ impl AudioCapture {
             .map_err(|e| format!("Failed to build input stream: {e}"))?;
 
         Ok(stream)
-    }
-
-    pub fn sample_rate(&self) -> u32 {
-        self.sample_rate
-    }
-
-    pub fn get_samples(&self, _max_samples: usize) -> Vec<f32> {
-        // For reading, we need a consumer. We'll return recent samples.
-        // This is a simplified approach - in a real implementation,
-        // we'd want a separate consumer for reading.
-        vec![]
-    }
-}
-
-// Shared buffer that both audio thread and UI can access
-#[allow(dead_code)]
-pub struct SharedAudioBuffer {
-    producer: Arc<Mutex<ringbuf::HeapProd<f32>>>,
-    consumer: Arc<Mutex<ringbuf::HeapCons<f32>>>,
-}
-
-impl Default for SharedAudioBuffer {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
-impl SharedAudioBuffer {
-    pub fn new() -> Self {
-        let ring_buffer = HeapRb::<f32>::new(BUFFER_SIZE);
-        let (producer, consumer) = ring_buffer.split();
-
-        SharedAudioBuffer {
-            producer: Arc::new(Mutex::new(producer)),
-            consumer: Arc::new(Mutex::new(consumer)),
-        }
-    }
-
-    pub fn producer(&self) -> Arc<Mutex<ringbuf::HeapProd<f32>>> {
-        Arc::clone(&self.producer)
-    }
-
-    pub fn read_samples(&self, max_samples: usize) -> Vec<f32> {
-        if let Ok(mut consumer) = self.consumer.lock() {
-            let available = consumer.occupied_len();
-            let to_read = available.min(max_samples);
-
-            let mut samples = Vec::with_capacity(to_read);
-            for _ in 0..to_read {
-                if let Some(sample) = consumer.try_pop() {
-                    samples.push(sample);
-                }
-            }
-            samples
-        } else {
-            vec![]
-        }
     }
 }

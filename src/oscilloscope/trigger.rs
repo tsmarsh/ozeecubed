@@ -1,12 +1,4 @@
 #[derive(Debug, Clone, Copy, PartialEq)]
-#[allow(dead_code)]
-pub enum TriggerMode {
-    Auto,
-    Normal,
-    Single,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum TriggerEdge {
     Rising,
     Falling,
@@ -15,8 +7,6 @@ pub enum TriggerEdge {
 #[derive(Debug, Clone)]
 pub struct TriggerSettings {
     pub enabled: bool,
-    #[allow(dead_code)]
-    pub mode: TriggerMode,
     pub edge: TriggerEdge,
     pub level: f32, // Voltage level for trigger
 }
@@ -25,7 +15,6 @@ impl Default for TriggerSettings {
     fn default() -> Self {
         TriggerSettings {
             enabled: true,
-            mode: TriggerMode::Auto,
             edge: TriggerEdge::Rising,
             level: 0.0,
         }
@@ -57,7 +46,6 @@ mod tests {
     fn test_default_trigger_settings() {
         let settings = TriggerSettings::default();
         assert!(settings.enabled);
-        assert_eq!(settings.mode, TriggerMode::Auto);
         assert_eq!(settings.edge, TriggerEdge::Rising);
         assert_eq!(settings.level, 0.0);
     }
@@ -112,14 +100,6 @@ mod tests {
 
         settings.toggle_edge();
         assert_eq!(settings.edge, TriggerEdge::Rising);
-    }
-
-    #[test]
-    fn test_trigger_mode_equality() {
-        assert_eq!(TriggerMode::Auto, TriggerMode::Auto);
-        assert_eq!(TriggerMode::Normal, TriggerMode::Normal);
-        assert_eq!(TriggerMode::Single, TriggerMode::Single);
-        assert_ne!(TriggerMode::Auto, TriggerMode::Normal);
     }
 
     #[test]
