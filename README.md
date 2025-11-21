@@ -176,6 +176,20 @@ This project is dual-licensed under MIT OR Apache-2.0.
 - Close other GPU-intensive applications
 - Try running in release mode: `cargo run --release`
 
+## Security
+
+### Dependency Audit
+
+This project uses `cargo audit` in CI to check for security vulnerabilities. Currently, there are no known security vulnerabilities.
+
+There are advisory warnings for unmaintained transitive dependencies (`instant` and `paste`) that come from the `iced` framework. These are informational only and do not pose security risks. The `iced` team is tracking these issues and will migrate to maintained alternatives in future releases.
+
+To run the security audit locally:
+
+```bash
+cargo audit
+```
+
 ## Development
 
 ### Running Tests
