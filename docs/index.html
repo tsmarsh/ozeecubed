@@ -261,6 +261,46 @@
             color: #00ff41;
             font-weight: 600;
         }
+
+        .screenshots {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .screenshot {
+            background: #1a1a1a;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid #2d2d2d;
+            transition: all 0.3s ease;
+        }
+
+        .screenshot:hover {
+            border-color: #00ff41;
+            box-shadow: 0 0 30px rgba(0, 255, 65, 0.2);
+        }
+
+        .screenshot img {
+            width: 100%;
+            height: auto;
+            border-radius: 4px;
+            display: block;
+            margin-bottom: 1rem;
+            border: 1px solid #2d2d2d;
+        }
+
+        .screenshot h3 {
+            color: #00ff41;
+            margin-bottom: 0.5rem;
+            font-size: 1.2rem;
+        }
+
+        .screenshot p {
+            color: #b0b0b0;
+            font-size: 0.95rem;
+        }
     </style>
 </head>
 <body>
@@ -323,6 +363,22 @@
                 <div class="spec">
                     <div class="spec-value">10µs - 1s</div>
                     <div class="spec-label">Time/Division Range</div>
+                </div>
+            </div>
+        </section>
+
+        <section id="screenshots">
+            <h2>Screenshots</h2>
+            <div class="screenshots">
+                <div class="screenshot">
+                    <img src="screenshots/pure.png" alt="OzeeCubed - Clean Waveform Display">
+                    <h3>Clean Waveform Display</h3>
+                    <p>Crystal-clear signal visualization with classic oscilloscope grid. Real-time frequency, voltage, and waveform measurements displayed on screen.</p>
+                </div>
+                <div class="screenshot">
+                    <img src="screenshots/persistence.png" alt="OzeeCubed - Phosphor Persistence Effect">
+                    <h3>Phosphor Persistence Effect</h3>
+                    <p>Beautiful CRT-style afterglow effect shows waveform history. Adjustable persistence frames create that authentic vintage oscilloscope look.</p>
                 </div>
             </div>
         </section>
