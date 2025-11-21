@@ -11,6 +11,7 @@ iced = { version = "0.13", features = ["canvas", "wgpu", "debug", "tokio"] }
 cpal = "0.15"
 ringbuf = "0.4"
 bytemuck = { version = "1.14", features = ["derive"] }
+rustfft = "6.2"
 
 [profile.release]
 opt-level = 3

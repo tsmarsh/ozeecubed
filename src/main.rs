@@ -4,12 +4,12 @@ mod ui;
 
 use audio::AudioCapture;
 use iced::keyboard::{self, Key};
-use iced::widget::{column, container};
+use iced::widget::{column, container, row};
 use iced::{Element, Event, Length, Subscription, Task, Theme};
 use oscilloscope::{TriggerSettings, WaveformData};
 use std::time::Duration;
-use ui::controls::{build_controls, ControlMessage, Measurements};
-use ui::WaveformCanvas;
+use ui::controls::{build_controls, ControlMessage, LayoutMode, Measurements};
+use ui::{SpectrumCanvas, WaveformCanvas};
 
 fn main() -> iced::Result {
     iced::application("OzeeCubed", OzScope::update, OzScope::view)
@@ -22,8 +22,10 @@ struct OzScope {
     waveform: WaveformData,
     trigger_settings: TriggerSettings,
     canvas: WaveformCanvas,
+    spectrum_canvas: SpectrumCanvas,
     audio_capture: Option<AudioCapture>,
     audio_buffer: Vec<f32>,
+    layout_mode: LayoutMode,
 }
 
 #[derive(Debug, Clone)]
@@ -53,8 +55,10 @@ impl OzScope {
                 waveform: WaveformData::new(sample_rate),
                 trigger_settings: TriggerSettings::default(),
                 canvas: WaveformCanvas::new(),
+                spectrum_canvas: SpectrumCanvas::new(),
                 audio_capture,
                 audio_buffer: Vec::new(),
+                layout_mode: LayoutMode::SideBySide,
             },
             Task::none(),
         )
@@ -90,7 +94,8 @@ impl OzScope {
     }
 
     fn view(&self) -> Element<'_, Message> {
-        let canvas = self.canvas.view(self.waveform.clone());
+        let scope_canvas = self.canvas.view(self.waveform.clone());
+        let spectrum_canvas = self.spectrum_canvas.view().map(|_| Message::AudioUpdate);
 
         let measurements = Measurements {
             frequency: self.waveform.calculate_frequency(),
@@ -107,10 +112,27 @@ impl OzScope {
             &measurements,
             self.canvas.is_persistence_enabled(),
             self.canvas.get_persistence_frames(),
+            self.layout_mode,
         )
         .map(Message::Control);
 
-        let content = column![canvas, controls]
+        // Choose layout based on mode
+        let canvas_view: Element<'_, Message> = match self.layout_mode {
+            LayoutMode::ScopeOnly => column![scope_canvas].into(),
+            LayoutMode::SpectrumOnly => column![spectrum_canvas].into(),
+            LayoutMode::SideBySide => row![scope_canvas, spectrum_canvas]
+                .spacing(2)
+                .width(Length::Fill)
+                .height(Length::Fill)
+                .into(),
+            LayoutMode::Stacked => column![scope_canvas, spectrum_canvas]
+                .spacing(2)
+                .width(Length::Fill)
+                .height(Length::Fill)
+                .into(),
+        };
+
+        let content = column![canvas_view, controls]
             .spacing(0)
             .width(Length::Fill)
             .height(Length::Fill);
@@ -221,6 +243,9 @@ impl OzScope {
             ControlMessage::SetPersistenceFrames(value) => {
                 self.canvas.set_persistence_frames(value as usize);
             }
+            ControlMessage::SetLayoutMode(mode) => {
+                self.layout_mode = mode;
+            }
         }
     }
 
@@ -245,6 +270,9 @@ impl OzScope {
 
                 // Update waveform with current buffer
                 self.waveform.update_samples(self.audio_buffer.clone());
+
+                // Update spectrum analyzer
+                self.spectrum_canvas.update_spectrum(&self.audio_buffer, self.waveform.sample_rate);
             }
         } else {
             // Fallback: generate test signal if no audio capture

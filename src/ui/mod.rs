@@ -1,4 +1,5 @@
 pub mod controls;
+pub mod spectrum;
 
 use iced::mouse;
 use iced::widget::canvas::{self, Cache, Canvas, Frame, Geometry, Path, Program, Stroke};
@@ -6,6 +7,7 @@ use iced::{Color, Point, Rectangle, Size, Theme};
 use std::collections::VecDeque;
 
 use crate::oscilloscope::WaveformData;
+pub use spectrum::SpectrumCanvas;
 
 const GRID_GREEN: Color = Color::from_rgba(0.0, 1.0, 0.0, 0.3);
 const BACKGROUND: Color = Color::BLACK;

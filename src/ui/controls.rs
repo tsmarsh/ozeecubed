@@ -1,6 +1,14 @@
 use iced::widget::{button, column, container, row, slider, text};
 use iced::{Alignment, Element, Length};
 
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum LayoutMode {
+    ScopeOnly,
+    SpectrumOnly,
+    SideBySide,
+    Stacked,
+}
+
 #[derive(Debug, Clone)]
 pub enum ControlMessage {
     IncreaseTimeScale,
@@ -18,6 +26,7 @@ pub enum ControlMessage {
     IncreasePersistence,
     DecreasePersistence,
     SetPersistenceFrames(u8),
+    SetLayoutMode(LayoutMode),
 }
 
 #[derive(Debug, Clone)]
@@ -36,6 +45,7 @@ pub fn build_controls<'a>(
     measurements: &Measurements,
     persistence_enabled: bool,
     persistence_frames: usize,
+    layout_mode: LayoutMode,
 ) -> Element<'a, ControlMessage> {
     // Convert time_per_div to logarithmic scale for slider (10µs to 1s)
     // log10(0.00001) = -5, log10(1.0) = 0
@@ -153,8 +163,29 @@ pub fn build_controls<'a>(
     ]
     .spacing(5);
 
+    let layout_selector = column![
+        text("Layout").size(14),
+        row![
+            button(if layout_mode == LayoutMode::SideBySide {
+                "◧"
+            } else {
+                "◧"
+            })
+            .on_press(ControlMessage::SetLayoutMode(LayoutMode::SideBySide)),
+            button(if layout_mode == LayoutMode::Stacked {
+                "⬒"
+            } else {
+                "⬒"
+            })
+            .on_press(ControlMessage::SetLayoutMode(LayoutMode::Stacked)),
+        ]
+        .spacing(5),
+    ]
+    .spacing(5);
+
     container(
         row![
+            layout_selector,
             time_controls,
             voltage_controls,
             trigger_controls,
