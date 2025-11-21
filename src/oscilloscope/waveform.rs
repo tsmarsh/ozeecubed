@@ -147,7 +147,10 @@ impl WaveformData {
         }
 
         let min = self.samples.iter().fold(f32::INFINITY, |a, &b| a.min(b));
-        let max = self.samples.iter().fold(f32::NEG_INFINITY, |a, &b| a.max(b));
+        let max = self
+            .samples
+            .iter()
+            .fold(f32::NEG_INFINITY, |a, &b| a.max(b));
 
         Some(max - min)
     }
