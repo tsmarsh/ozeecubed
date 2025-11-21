@@ -139,6 +139,58 @@ impl WaveformData {
             None
         }
     }
+
+    /// Calculate peak-to-peak voltage
+    pub fn calculate_peak_to_peak(&self) -> Option<f32> {
+        if self.samples.is_empty() {
+            return None;
+        }
+
+        let min = self.samples.iter().fold(f32::INFINITY, |a, &b| a.min(b));
+        let max = self.samples.iter().fold(f32::NEG_INFINITY, |a, &b| a.max(b));
+
+        Some(max - min)
+    }
+
+    /// Calculate RMS (Root Mean Square) voltage
+    pub fn calculate_rms(&self) -> Option<f32> {
+        if self.samples.is_empty() {
+            return None;
+        }
+
+        let sum_of_squares: f32 = self.samples.iter().map(|&x| x * x).sum();
+        let mean_square = sum_of_squares / self.samples.len() as f32;
+
+        Some(mean_square.sqrt())
+    }
+
+    /// Calculate duty cycle (percentage of time signal is above zero)
+    pub fn calculate_duty_cycle(&self) -> Option<f32> {
+        if self.samples.len() < 2 {
+            return None;
+        }
+
+        // Find zero crossings to determine periods
+        let mut crossings = Vec::new();
+        for i in 1..self.samples.len() {
+            if (self.samples[i - 1] < 0.0 && self.samples[i] >= 0.0)
+                || (self.samples[i - 1] > 0.0 && self.samples[i] <= 0.0)
+            {
+                crossings.push(i);
+            }
+        }
+
+        // Need at least 2 crossings to measure duty cycle
+        if crossings.len() < 2 {
+            return None;
+        }
+
+        // Count samples above zero
+        let above_zero = self.samples.iter().filter(|&&x| x > 0.0).count();
+        let duty_cycle = (above_zero as f32 / self.samples.len() as f32) * 100.0;
+
+        Some(duty_cycle)
+    }
 }
 
 #[cfg(test)]
@@ -385,5 +437,140 @@ mod tests {
         let waveform = WaveformData::new(48000);
         let freq = waveform.calculate_frequency();
         assert!(freq.is_none());
+    }
+
+    #[test]
+    fn test_calculate_peak_to_peak() {
+        let mut waveform = WaveformData::new(48000);
+        let samples = vec![-1.0, -0.5, 0.0, 0.5, 1.0];
+        waveform.update_samples(samples);
+
+        let pk_pk = waveform.calculate_peak_to_peak();
+        assert!(pk_pk.is_some());
+        assert!((pk_pk.unwrap() - 2.0).abs() < 0.001); // 1.0 - (-1.0) = 2.0
+    }
+
+    #[test]
+    fn test_calculate_peak_to_peak_empty() {
+        let waveform = WaveformData::new(48000);
+        let pk_pk = waveform.calculate_peak_to_peak();
+        assert!(pk_pk.is_none());
+    }
+
+    #[test]
+    fn test_calculate_peak_to_peak_dc() {
+        let mut waveform = WaveformData::new(48000);
+        let samples = vec![0.5; 100];
+        waveform.update_samples(samples);
+
+        let pk_pk = waveform.calculate_peak_to_peak();
+        assert!(pk_pk.is_some());
+        assert!(pk_pk.unwrap().abs() < 0.001); // DC signal has 0 pk-pk
+    }
+
+    #[test]
+    fn test_calculate_rms_sine_wave() {
+        let mut waveform = WaveformData::new(48000);
+
+        // Generate a sine wave with amplitude 1.0
+        // RMS of sine wave = amplitude / sqrt(2) ≈ 0.707
+        let mut samples = vec![];
+        for i in 0..1000 {
+            let t = i as f32 / 100.0;
+            samples.push((2.0 * std::f32::consts::PI * t).sin());
+        }
+        waveform.update_samples(samples);
+
+        let rms = waveform.calculate_rms();
+        assert!(rms.is_some());
+        let expected = 1.0 / 2.0_f32.sqrt();
+        assert!(
+            (rms.unwrap() - expected).abs() < 0.02,
+            "Expected ~{expected}, got {}",
+            rms.unwrap()
+        );
+    }
+
+    #[test]
+    fn test_calculate_rms_dc() {
+        let mut waveform = WaveformData::new(48000);
+        let samples = vec![2.0; 100];
+        waveform.update_samples(samples);
+
+        let rms = waveform.calculate_rms();
+        assert!(rms.is_some());
+        assert!((rms.unwrap() - 2.0).abs() < 0.001);
+    }
+
+    #[test]
+    fn test_calculate_rms_empty() {
+        let waveform = WaveformData::new(48000);
+        let rms = waveform.calculate_rms();
+        assert!(rms.is_none());
+    }
+
+    #[test]
+    fn test_calculate_duty_cycle_square_wave() {
+        let mut waveform = WaveformData::new(48000);
+
+        // 50% duty cycle square wave
+        let mut samples = vec![];
+        for i in 0..100 {
+            if i % 2 == 0 {
+                samples.push(1.0);
+            } else {
+                samples.push(-1.0);
+            }
+        }
+        waveform.update_samples(samples);
+
+        let duty = waveform.calculate_duty_cycle();
+        assert!(duty.is_some());
+        assert!(
+            (duty.unwrap() - 50.0).abs() < 1.0,
+            "Expected ~50%, got {}%",
+            duty.unwrap()
+        );
+    }
+
+    #[test]
+    fn test_calculate_duty_cycle_25_percent() {
+        let mut waveform = WaveformData::new(48000);
+
+        // 25% duty cycle
+        let mut samples = vec![];
+        for i in 0..100 {
+            if i % 4 == 0 {
+                samples.push(1.0);
+            } else {
+                samples.push(-1.0);
+            }
+        }
+        waveform.update_samples(samples);
+
+        let duty = waveform.calculate_duty_cycle();
+        assert!(duty.is_some());
+        assert!(
+            (duty.unwrap() - 25.0).abs() < 2.0,
+            "Expected ~25%, got {}%",
+            duty.unwrap()
+        );
+    }
+
+    #[test]
+    fn test_calculate_duty_cycle_no_crossings() {
+        let mut waveform = WaveformData::new(48000);
+        // DC signal - no crossings
+        waveform.update_samples(vec![1.0; 100]);
+
+        let duty = waveform.calculate_duty_cycle();
+        assert!(duty.is_none());
+    }
+
+    #[test]
+    fn test_calculate_duty_cycle_empty() {
+        let waveform = WaveformData::new(48000);
+        let duty = waveform.calculate_duty_cycle();
+        assert!(duty.is_none());
     }
 }

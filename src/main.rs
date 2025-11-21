@@ -8,7 +8,7 @@ use iced::widget::{column, container};
 use iced::{Element, Event, Length, Subscription, Task, Theme};
 use oscilloscope::{TriggerSettings, WaveformData};
 use std::time::{Duration, Instant};
-use ui::controls::{build_controls, ControlMessage};
+use ui::controls::{build_controls, ControlMessage, Measurements};
 use ui::WaveformCanvas;
 
 fn main() -> iced::Result {
@@ -94,14 +94,19 @@ impl OzScope {
     fn view(&self) -> Element<'_, Message> {
         let canvas = self.canvas.view(self.waveform.clone());
 
-        let frequency = self.waveform.calculate_frequency();
+        let measurements = Measurements {
+            frequency: self.waveform.calculate_frequency(),
+            peak_to_peak: self.waveform.calculate_peak_to_peak(),
+            rms: self.waveform.calculate_rms(),
+            duty_cycle: self.waveform.calculate_duty_cycle(),
+        };
 
         let controls = build_controls(
             self.waveform.time_per_division,
             self.waveform.volts_per_division,
             self.trigger_settings.enabled,
             self.trigger_settings.level,
-            frequency,
+            &measurements,
             self.canvas.is_persistence_enabled(),
             self.canvas.get_persistence_frames(),
         )

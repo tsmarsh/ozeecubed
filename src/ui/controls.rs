@@ -16,12 +16,20 @@ pub enum ControlMessage {
     DecreasePersistence,
 }
 
+#[derive(Debug, Clone)]
+pub struct Measurements {
+    pub frequency: Option<f32>,
+    pub peak_to_peak: Option<f32>,
+    pub rms: Option<f32>,
+    pub duty_cycle: Option<f32>,
+}
+
 pub fn build_controls<'a>(
     time_per_div: f32,
     volts_per_div: f32,
     trigger_enabled: bool,
     trigger_level: f32,
-    frequency: Option<f32>,
+    measurements: &Measurements,
     persistence_enabled: bool,
     persistence_frames: usize,
 ) -> Element<'a, ControlMessage> {
@@ -67,20 +75,38 @@ pub fn build_controls<'a>(
     ]
     .spacing(5);
 
-    let measurements = column![
+    let measurements_display = column![
         text("Measurements").size(14),
-        text(if let Some(freq) = frequency {
+        text(if let Some(freq) = measurements.frequency {
             if freq >= 1000.0 {
-                format!("{:.2} kHz", freq / 1000.0)
+                format!("Freq: {:.2} kHz", freq / 1000.0)
             } else {
-                format!("{freq:.1} Hz")
+                format!("Freq: {freq:.1} Hz")
             }
         } else {
-            "-- Hz".to_string()
+            "Freq: --".to_string()
         })
-        .size(12),
+        .size(11),
+        text(if let Some(pk_pk) = measurements.peak_to_peak {
+            format!("Vpp: {pk_pk:.3} V")
+        } else {
+            "Vpp: --".to_string()
+        })
+        .size(11),
+        text(if let Some(rms_val) = measurements.rms {
+            format!("Vrms: {rms_val:.3} V")
+        } else {
+            "Vrms: --".to_string()
+        })
+        .size(11),
+        text(if let Some(duty) = measurements.duty_cycle {
+            format!("Duty: {duty:.1}%")
+        } else {
+            "Duty: --".to_string()
+        })
+        .size(11),
     ]
-    .spacing(5);
+    .spacing(3);
 
     let persistence_controls = column![
         text("Persistence").size(14),
@@ -103,7 +129,7 @@ pub fn build_controls<'a>(
             voltage_controls,
             trigger_controls,
             persistence_controls,
-            measurements
+            measurements_display
         ]
         .spacing(20)
         .padding(10)

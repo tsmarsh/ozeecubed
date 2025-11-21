@@ -43,6 +43,9 @@ A GPU-accelerated digital oscilloscope for real-time audio visualization, writte
 
 - **Measurements**: Automatic signal analysis
   - **Frequency**: Displays measured signal frequency in Hz or kHz
+  - **Peak-to-Peak Voltage (Vpp)**: Shows voltage difference between maximum and minimum
+  - **RMS Voltage (Vrms)**: Root mean square voltage measurement
+  - **Duty Cycle**: Percentage of time signal is above zero (for square waves)
 
 ## Installation
 
@@ -137,10 +140,10 @@ OzeeCubed is built with a modular architecture:
 
 #### Phase 3: Measurements & Analysis
 - [x] Automatic frequency measurement
-- [ ] Peak-to-peak voltage display
-- [ ] RMS voltage calculation
-- [ ] Duty cycle measurement
-- [ ] Cursors for manual measurements
+- [x] Peak-to-peak voltage display
+- [x] RMS voltage calculation
+- [x] Duty cycle measurement
+- [ ] Cursors for manual measurements (deferred - interactive feature)
 
 #### Phase 4: Advanced Triggering
 - [ ] Single-shot trigger mode
