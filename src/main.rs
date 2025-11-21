@@ -22,7 +22,9 @@ struct OzScope {
     waveform: WaveformData,
     trigger_settings: TriggerSettings,
     canvas: WaveformCanvas,
+    #[allow(dead_code)]
     audio_capture: Option<AudioCapture>,
+    #[allow(dead_code)]
     audio_buffer: Arc<Mutex<Vec<f32>>>,
     last_update: Instant,
 }
@@ -43,7 +45,7 @@ impl OzScope {
                 Some(capture)
             }
             Err(e) => {
-                eprintln!("Failed to initialize audio capture: {}", e);
+                eprintln!("Failed to initialize audio capture: {e}");
                 None
             }
         };
@@ -101,8 +103,6 @@ impl OzScope {
 
     fn subscription(&self) -> Subscription<Message> {
         // Update at ~60 FPS
-        struct FrameTick;
-
         iced::time::every(Duration::from_millis(16)).map(|_instant| Message::AudioUpdate)
     }
 

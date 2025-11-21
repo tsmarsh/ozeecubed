@@ -35,7 +35,7 @@ pub fn build_controls<'a>(
         text("Volts/Div").size(14),
         row![
             button("-").on_press(ControlMessage::DecreaseVoltageScale),
-            text(format!("{:.2} V", volts_per_div)).width(Length::Fixed(80.0)),
+            text(format!("{volts_per_div:.2} V")).width(Length::Fixed(80.0)),
             button("+").on_press(ControlMessage::IncreaseVoltageScale),
         ]
         .spacing(5)
@@ -53,7 +53,7 @@ pub fn build_controls<'a>(
         .spacing(5),
         row![
             button("-").on_press(ControlMessage::DecreaseTriggerLevel),
-            text(format!("{:.2} V", trigger_level)).width(Length::Fixed(80.0)),
+            text(format!("{trigger_level:.2} V")).width(Length::Fixed(80.0)),
             button("+").on_press(ControlMessage::IncreaseTriggerLevel),
         ]
         .spacing(5)

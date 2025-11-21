@@ -1,5 +1,5 @@
 pub mod trigger;
 pub mod waveform;
 
-pub use trigger::{TriggerEdge, TriggerMode, TriggerSettings};
+pub use trigger::TriggerSettings;
 pub use waveform::WaveformData;

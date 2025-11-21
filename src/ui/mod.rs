@@ -14,6 +14,12 @@ pub struct WaveformCanvas {
     cache: Cache,
 }
 
+impl Default for WaveformCanvas {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl WaveformCanvas {
     pub fn new() -> Self {
         WaveformCanvas {
@@ -21,7 +27,7 @@ impl WaveformCanvas {
         }
     }
 
-    pub fn view<'a, Message>(&'a self, waveform: WaveformData) -> Canvas<WaveformData, Message> {
+    pub fn view<Message>(&self, waveform: WaveformData) -> Canvas<WaveformData, Message> {
         Canvas::new(waveform)
             .width(iced::Length::Fill)
             .height(iced::Length::Fill)

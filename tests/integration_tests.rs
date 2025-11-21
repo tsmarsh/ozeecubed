@@ -45,7 +45,7 @@ fn test_time_scale_changes_affect_display() {
     let samples: Vec<f32> = (0..4800).map(|i| (i as f32 / 100.0).sin()).collect();
     waveform.update_samples(samples);
 
-    let trigger_settings = TriggerSettings::default();
+    let _trigger_settings = TriggerSettings::default();
 
     // Get initial display samples
     let initial_count = waveform.calculate_samples_per_screen();

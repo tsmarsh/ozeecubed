@@ -5,6 +5,7 @@ use std::sync::{Arc, Mutex};
 
 const BUFFER_SIZE: usize = 48000; // 1 second at 48kHz
 
+#[allow(dead_code)]
 pub struct AudioCapture {
     _stream: Stream,
     buffer: Arc<Mutex<ringbuf::HeapProd<f32>>>,
@@ -21,7 +22,7 @@ impl AudioCapture {
 
         let config = device
             .default_input_config()
-            .map_err(|e| format!("Failed to get default input config: {}", e))?;
+            .map_err(|e| format!("Failed to get default input config: {e}"))?;
 
         let sample_rate = config.sample_rate().0;
 
@@ -29,7 +30,7 @@ impl AudioCapture {
             "Using audio device: {}",
             device.name().unwrap_or_else(|_| "Unknown".to_string())
         );
-        println!("Sample rate: {} Hz", sample_rate);
+        println!("Sample rate: {sample_rate} Hz");
         println!("Channels: {}", config.channels());
 
         let ring_buffer = HeapRb::<f32>::new(BUFFER_SIZE);
@@ -42,7 +43,7 @@ impl AudioCapture {
         let stream = Self::build_input_stream(&device, &config.into(), producer_clone, channels)?;
         stream
             .play()
-            .map_err(|e| format!("Failed to play stream: {}", e))?;
+            .map_err(|e| format!("Failed to play stream: {e}"))?;
 
         Ok(AudioCapture {
             _stream: stream,
@@ -57,7 +58,7 @@ impl AudioCapture {
         producer: Arc<Mutex<ringbuf::HeapProd<f32>>>,
         channels: u16,
     ) -> Result<Stream, String> {
-        let err_fn = |err| eprintln!("Audio stream error: {}", err);
+        let err_fn = |err| eprintln!("Audio stream error: {err}");
 
         let stream = device
             .build_input_stream(
@@ -74,7 +75,7 @@ impl AudioCapture {
                 err_fn,
                 None,
             )
-            .map_err(|e| format!("Failed to build input stream: {}", e))?;
+            .map_err(|e| format!("Failed to build input stream: {e}"))?;
 
         Ok(stream)
     }
@@ -92,9 +93,16 @@ impl AudioCapture {
 }
 
 // Shared buffer that both audio thread and UI can access
+#[allow(dead_code)]
 pub struct SharedAudioBuffer {
     producer: Arc<Mutex<ringbuf::HeapProd<f32>>>,
     consumer: Arc<Mutex<ringbuf::HeapCons<f32>>>,
+}
+
+impl Default for SharedAudioBuffer {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl SharedAudioBuffer {

@@ -1,4 +1,5 @@
 #[derive(Debug, Clone, Copy, PartialEq)]
+#[allow(dead_code)]
 pub enum TriggerMode {
     Auto,
     Normal,
@@ -14,6 +15,7 @@ pub enum TriggerEdge {
 #[derive(Debug, Clone)]
 pub struct TriggerSettings {
     pub enabled: bool,
+    #[allow(dead_code)]
     pub mode: TriggerMode,
     pub edge: TriggerEdge,
     pub level: f32, // Voltage level for trigger
@@ -54,7 +56,7 @@ mod tests {
     #[test]
     fn test_default_trigger_settings() {
         let settings = TriggerSettings::default();
-        assert_eq!(settings.enabled, true);
+        assert!(settings.enabled);
         assert_eq!(settings.mode, TriggerMode::Auto);
         assert_eq!(settings.edge, TriggerEdge::Rising);
         assert_eq!(settings.level, 0.0);
@@ -63,13 +65,13 @@ mod tests {
     #[test]
     fn test_toggle_enabled() {
         let mut settings = TriggerSettings::default();
-        assert_eq!(settings.enabled, true);
+        assert!(settings.enabled);
 
         settings.toggle_enabled();
-        assert_eq!(settings.enabled, false);
+        assert!(!settings.enabled);
 
         settings.toggle_enabled();
-        assert_eq!(settings.enabled, true);
+        assert!(settings.enabled);
     }
 
     #[test]
