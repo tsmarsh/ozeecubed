@@ -145,7 +145,7 @@ fn draw_spectrum_grid(frame: &mut Frame, width: f32, height: f32) {
         let label = if freq_khz == 0.0 {
             "0".to_string()
         } else {
-            format!("{:.0}k", freq_khz)
+            format!("{freq_khz:.0}k")
         };
 
         frame.fill_text(Text {
@@ -161,7 +161,7 @@ fn draw_spectrum_grid(frame: &mut Frame, width: f32, height: f32) {
     for i in 0..=4 {
         let y = (i as f32 / 4.0) * height;
         let db = -(80.0 - (i as f32 / 4.0) * 80.0); // -80 dB to 0 dB
-        let label = format!("{:.0}", db);
+        let label = format!("{db:.0}");
 
         frame.fill_text(Text {
             content: label,

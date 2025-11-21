@@ -54,7 +54,7 @@ impl OzScopeWasm {
                 Ok(())
             }
             Err(e) => {
-                web_sys::console::error_1(&format!("Failed to init audio: {}", e).into());
+                web_sys::console::error_1(&format!("Failed to init audio: {e}").into());
                 Err(JsValue::from_str(&e))
             }
         }
