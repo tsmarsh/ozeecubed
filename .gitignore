@@ -16,6 +16,9 @@
 *.out
 *.app
 
+# WASM build artifacts
+wasm/pkg/
+
 # Debug files
 *.dSYM/
 

@@ -32,9 +32,18 @@ wasm-bindgen ../target/wasm32-unknown-unknown/release/ozeecubed_wasm.wasm \
     --target web \
     --no-typescript
 
+echo "📋 Copying to docs/ozeecubed for GitHub Pages..."
+mkdir -p ../docs/ozeecubed
+cp -r pkg ../docs/ozeecubed/
+cp index.html ../docs/ozeecubed/
+
 echo "✅ Build complete!"
 echo "📂 Output in ./pkg/"
+echo "📂 GitHub Pages build in ../docs/ozeecubed/"
 echo ""
 echo "To test locally:"
 echo "  cd wasm && python3 -m http.server 8888"
 echo "  Open: http://localhost:8888"
+echo ""
+echo "GitHub Pages URL (after push):"
+echo "  https://<username>.github.io/ozeecubed/ozeecubed/"
