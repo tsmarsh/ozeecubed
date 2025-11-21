@@ -36,6 +36,14 @@ A GPU-accelerated digital oscilloscope for real-time audio visualization, writte
   - **Edge**: Switch between rising and falling edge triggering
   - **Level**: Adjust trigger voltage threshold with `-` and `+`
 
+- **Persistence**: Classic phosphor-style waveform decay
+  - **ON/OFF**: Toggle persistence effect
+  - **Frames**: Adjust number of historical traces (1-30)
+  - Creates the classic CRT oscilloscope "afterglow" effect
+
+- **Measurements**: Automatic signal analysis
+  - **Frequency**: Displays measured signal frequency in Hz or kHz
+
 ## Installation
 
 ### Prerequisites
@@ -98,6 +106,9 @@ cargo run --release
 - `→` (Right Arrow) - Increase trigger level
 - `←` (Left Arrow) - Decrease trigger level
 
+#### Persistence
+- `P` - Toggle waveform persistence on/off
+
 ## Architecture
 
 OzeeCubed is built with a modular architecture:
@@ -120,9 +131,9 @@ OzeeCubed is built with a modular architecture:
 #### Phase 2: Enhanced Functionality
 - [x] Real audio capture integration
 - [x] Keyboard shortcuts for all controls
+- [x] Waveform persistence/decay effects (phosphor-like)
 - [ ] Multi-channel display (stereo L/R separate traces)
 - [ ] Audio device selection UI
-- [ ] Waveform persistence/decay effects (phosphor-like)
 
 #### Phase 3: Measurements & Analysis
 - [x] Automatic frequency measurement

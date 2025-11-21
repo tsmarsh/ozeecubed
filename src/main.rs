@@ -66,6 +66,10 @@ impl OzScope {
         match message {
             Message::AudioUpdate => {
                 self.update_audio();
+                // Add current waveform to history for persistence effect
+                let trigger_settings = TriggerSettings::default();
+                let points = self.waveform.get_display_samples(&trigger_settings);
+                self.canvas.add_to_history(points);
                 self.canvas.clear_cache();
             }
             Message::Control(control) => {
@@ -98,6 +102,8 @@ impl OzScope {
             self.trigger_settings.enabled,
             self.trigger_settings.level,
             frequency,
+            self.canvas.is_persistence_enabled(),
+            self.canvas.get_persistence_frames(),
         )
         .map(Message::Control);
 
@@ -152,6 +158,10 @@ impl OzScope {
             Key::Named(keyboard::key::Named::ArrowLeft) => {
                 Some(ControlMessage::DecreaseTriggerLevel)
             }
+            // Persistence controls
+            Key::Character(c) if c.as_str() == "p" || c.as_str() == "P" => {
+                Some(ControlMessage::TogglePersistence)
+            }
             _ => None,
         }
     }
@@ -183,6 +193,17 @@ impl OzScope {
             ControlMessage::DecreaseTriggerLevel => {
                 self.trigger_settings
                     .set_level(self.trigger_settings.level - 0.1);
+            }
+            ControlMessage::TogglePersistence => {
+                self.canvas.toggle_persistence();
+            }
+            ControlMessage::IncreasePersistence => {
+                let current = self.canvas.get_persistence_frames();
+                self.canvas.set_persistence_frames(current + 1);
+            }
+            ControlMessage::DecreasePersistence => {
+                let current = self.canvas.get_persistence_frames();
+                self.canvas.set_persistence_frames(current.saturating_sub(1));
             }
         }
     }

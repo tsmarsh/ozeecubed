@@ -11,6 +11,9 @@ pub enum ControlMessage {
     ToggleTriggerEdge,
     IncreaseTriggerLevel,
     DecreaseTriggerLevel,
+    TogglePersistence,
+    IncreasePersistence,
+    DecreasePersistence,
 }
 
 pub fn build_controls<'a>(
@@ -19,6 +22,8 @@ pub fn build_controls<'a>(
     trigger_enabled: bool,
     trigger_level: f32,
     frequency: Option<f32>,
+    persistence_enabled: bool,
+    persistence_frames: usize,
 ) -> Element<'a, ControlMessage> {
     let time_controls = column![
         text("Time/Div").size(14),
@@ -77,11 +82,29 @@ pub fn build_controls<'a>(
     ]
     .spacing(5);
 
+    let persistence_controls = column![
+        text("Persistence").size(14),
+        row![
+            button(if persistence_enabled { "ON" } else { "OFF" })
+                .on_press(ControlMessage::TogglePersistence),
+        ]
+        .spacing(5),
+        row![
+            button("-").on_press(ControlMessage::DecreasePersistence),
+            text(format!("{persistence_frames}")).width(Length::Fixed(80.0)),
+            button("+").on_press(ControlMessage::IncreasePersistence),
+        ]
+        .spacing(5)
+        .align_y(Alignment::Center),
+    ]
+    .spacing(5);
+
     container(
         row![
             time_controls,
             voltage_controls,
             trigger_controls,
+            persistence_controls,
             measurements
         ]
         .spacing(20)
