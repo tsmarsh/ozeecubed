@@ -7,7 +7,7 @@ use iced::keyboard::{self, Key};
 use iced::widget::{column, container};
 use iced::{Element, Event, Length, Subscription, Task, Theme};
 use oscilloscope::{TriggerSettings, WaveformData};
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use ui::controls::{build_controls, ControlMessage, Measurements};
 use ui::WaveformCanvas;
 
@@ -24,7 +24,6 @@ struct OzScope {
     canvas: WaveformCanvas,
     audio_capture: Option<AudioCapture>,
     audio_buffer: Vec<f32>,
-    last_update: Instant,
 }
 
 #[derive(Debug, Clone)]
@@ -56,7 +55,6 @@ impl OzScope {
                 canvas: WaveformCanvas::new(),
                 audio_capture,
                 audio_buffer: Vec::new(),
-                last_update: Instant::now(),
             },
             Task::none(),
         )
@@ -243,7 +241,7 @@ impl OzScope {
     }
 
     fn generate_test_signal(&mut self) {
-        // Generate a test sine wave as fallback
+        // Generate a test sine wave as fallback when no audio device is available
         let sample_rate = self.waveform.sample_rate as f32;
         let frequency = 440.0; // A4 note
         let duration = 0.1; // 100ms of samples
@@ -251,10 +249,11 @@ impl OzScope {
         let num_samples = (sample_rate * duration) as usize;
         let mut samples = Vec::with_capacity(num_samples);
 
-        let time_offset = self.last_update.elapsed().as_secs_f32();
+        // Use audio_buffer length as a simple phase accumulator
+        let phase_offset = self.audio_buffer.len() as f32 / sample_rate;
 
         for i in 0..num_samples {
-            let t = (i as f32 / sample_rate) + time_offset;
+            let t = (i as f32 / sample_rate) + phase_offset;
             let sample = (2.0 * std::f32::consts::PI * frequency * t).sin() * 0.5;
             samples.push(sample);
         }
