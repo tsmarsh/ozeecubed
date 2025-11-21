@@ -3,12 +3,11 @@ use cpal::{Device, Stream, StreamConfig};
 use ringbuf::{traits::*, HeapRb};
 use std::sync::{Arc, Mutex};
 
-const BUFFER_SIZE: usize = 48000; // 1 second at 48kHz
+const BUFFER_SIZE: usize = 9600; // ~200ms at 48kHz - enough for 3 frames at 60fps with headroom
 
 pub struct AudioCapture {
     _stream: Stream,
     consumer: Arc<Mutex<ringbuf::HeapCons<f32>>>,
-    pub sample_rate: u32,
 }
 
 impl AudioCapture {
@@ -48,7 +47,6 @@ impl AudioCapture {
         Ok(AudioCapture {
             _stream: stream,
             consumer,
-            sample_rate,
         })
     }
 
