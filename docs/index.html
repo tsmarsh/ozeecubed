@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OzeeCubed - GPU-Accelerated Digital Oscilloscope</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #e0e0e0;
+            background: #0a0a0a;
+        }
+
+        header {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            padding: 4rem 2rem;
+            text-align: center;
+            border-bottom: 2px solid #00ff41;
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #00ff41;
+            text-shadow: 0 0 20px rgba(0, 255, 65, 0.3);
+        }
+
+        .tagline {
+            font-size: 1.3rem;
+            color: #b0b0b0;
+            margin-bottom: 2rem;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 2rem;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            display: inline-block;
+            font-weight: 600;
+        }
+
+        .btn-primary {
+            background: #00ff41;
+            color: #0a0a0a;
+            border: 2px solid #00ff41;
+        }
+
+        .btn-primary:hover {
+            background: transparent;
+            color: #00ff41;
+            box-shadow: 0 0 20px rgba(0, 255, 65, 0.4);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #00ff41;
+            border: 2px solid #00ff41;
+        }
+
+        .btn-secondary:hover {
+            background: #00ff41;
+            color: #0a0a0a;
+            box-shadow: 0 0 20px rgba(0, 255, 65, 0.4);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        section {
+            margin: 4rem 0;
+        }
+
+        h2 {
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            color: #00ff41;
+            border-bottom: 2px solid #00ff41;
+            padding-bottom: 0.5rem;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .feature {
+            background: #1a1a1a;
+            padding: 2rem;
+            border-radius: 8px;
+            border: 1px solid #2d2d2d;
+            transition: all 0.3s ease;
+        }
+
+        .feature:hover {
+            border-color: #00ff41;
+            box-shadow: 0 0 20px rgba(0, 255, 65, 0.1);
+        }
+
+        .feature h3 {
+            color: #00ff41;
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+
+        .feature p {
+            color: #b0b0b0;
+        }
+
+        .downloads {
+            background: #1a1a1a;
+            padding: 2rem;
+            border-radius: 8px;
+            border: 1px solid #2d2d2d;
+        }
+
+        .download-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .download-link {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1.5rem;
+            background: #0a0a0a;
+            border: 1px solid #2d2d2d;
+            border-radius: 8px;
+            text-decoration: none;
+            color: #e0e0e0;
+            transition: all 0.3s ease;
+        }
+
+        .download-link:hover {
+            border-color: #00ff41;
+            background: #1a1a1a;
+        }
+
+        .platform-icon {
+            font-size: 2rem;
+        }
+
+        .download-info h4 {
+            color: #00ff41;
+            margin-bottom: 0.3rem;
+        }
+
+        .download-info p {
+            color: #808080;
+            font-size: 0.9rem;
+        }
+
+        .specs {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .spec {
+            text-align: center;
+            padding: 1.5rem;
+            background: #1a1a1a;
+            border-radius: 8px;
+            border: 1px solid #2d2d2d;
+        }
+
+        .spec-value {
+            font-size: 2rem;
+            color: #00ff41;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .spec-label {
+            color: #b0b0b0;
+            font-size: 0.9rem;
+        }
+
+        .keyboard-shortcuts {
+            background: #1a1a1a;
+            padding: 2rem;
+            border-radius: 8px;
+            border: 1px solid #2d2d2d;
+        }
+
+        .shortcuts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .shortcut {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.8rem;
+            background: #0a0a0a;
+            border-radius: 4px;
+        }
+
+        .key {
+            background: #2d2d2d;
+            padding: 0.3rem 0.8rem;
+            border-radius: 4px;
+            font-family: monospace;
+            color: #00ff41;
+            border: 1px solid #404040;
+        }
+
+        footer {
+            background: #1a1a1a;
+            padding: 2rem;
+            text-align: center;
+            border-top: 2px solid #00ff41;
+            margin-top: 4rem;
+        }
+
+        footer a {
+            color: #00ff41;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        code {
+            background: #1a1a1a;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            color: #00ff41;
+        }
+
+        .highlight {
+            color: #00ff41;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>🌊 OzeeCubed</h1>
+        <p class="tagline">GPU-Accelerated Digital Oscilloscope with Classic CRT Aesthetics</p>
+        <p>Real-time audio visualization with <span class="highlight">~30ms latency</span></p>
+        <div class="cta-buttons">
+            <a href="#downloads" class="btn btn-primary">Download Now</a>
+            <a href="https://github.com/tsmarsh/ozeecubed" class="btn btn-secondary">View on GitHub</a>
+        </div>
+    </header>
+
+    <div class="container">
+        <section id="features">
+            <h2>Features</h2>
+            <div class="features">
+                <div class="feature">
+                    <h3>⚡ Ultra-Low Latency</h3>
+                    <p>Near-instant response with optimized buffering. See your audio in real-time with only ~30ms of latency from sound to screen.</p>
+                </div>
+                <div class="feature">
+                    <h3>🎨 Classic CRT Aesthetic</h3>
+                    <p>Beautiful phosphor-style persistence effect with configurable decay. Just like the vintage oscilloscopes, but powered by modern GPU acceleration.</p>
+                </div>
+                <div class="feature">
+                    <h3>🎯 Smart Triggering</h3>
+                    <p>Stable waveform display with rising/falling edge detection. Adjustable trigger levels for perfect synchronization.</p>
+                </div>
+                <div class="feature">
+                    <h3>📊 Live Measurements</h3>
+                    <p>Real-time frequency detection, peak-to-peak voltage, RMS voltage, and duty cycle calculations displayed on screen.</p>
+                </div>
+                <div class="feature">
+                    <h3>⚙️ Professional Controls</h3>
+                    <p>Full time/division and volts/division scaling. Complete keyboard shortcuts for hands-free operation.</p>
+                </div>
+                <div class="feature">
+                    <h3>🚀 GPU Accelerated</h3>
+                    <p>Smooth 60 FPS rendering using wgpu. Efficient rendering that won't bog down your system.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="specs">
+            <h2>Technical Specifications</h2>
+            <div class="specs">
+                <div class="spec">
+                    <div class="spec-value">~30ms</div>
+                    <div class="spec-label">Total Latency</div>
+                </div>
+                <div class="spec">
+                    <div class="spec-value">60 FPS</div>
+                    <div class="spec-label">Refresh Rate</div>
+                </div>
+                <div class="spec">
+                    <div class="spec-value">48 kHz</div>
+                    <div class="spec-label">Sample Rate</div>
+                </div>
+                <div class="spec">
+                    <div class="spec-value">10µs - 1s</div>
+                    <div class="spec-label">Time/Division Range</div>
+                </div>
+            </div>
+        </section>
+
+        <section id="downloads">
+            <h2>Downloads</h2>
+            <div class="downloads">
+                <p>Download the latest release for your platform:</p>
+                <div class="download-links">
+                    <a href="https://github.com/tsmarsh/ozeecubed/releases/latest/download/ozeecubed-macos-aarch64.tar.gz" class="download-link">
+                        <div class="platform-icon">🍎</div>
+                        <div class="download-info">
+                            <h4>macOS (Apple Silicon)</h4>
+                            <p>M1, M2, M3, M4 chips</p>
+                        </div>
+                    </a>
+                    <a href="https://github.com/tsmarsh/ozeecubed/releases/latest/download/ozeecubed-macos-x86_64.tar.gz" class="download-link">
+                        <div class="platform-icon">🍎</div>
+                        <div class="download-info">
+                            <h4>macOS (Intel)</h4>
+                            <p>Intel-based Macs</p>
+                        </div>
+                    </a>
+                    <a href="https://github.com/tsmarsh/ozeecubed/releases/latest/download/ozeecubed-linux-x86_64.tar.gz" class="download-link">
+                        <div class="platform-icon">🐧</div>
+                        <div class="download-info">
+                            <h4>Linux</h4>
+                            <p>x86_64 with ALSA</p>
+                        </div>
+                    </a>
+                    <a href="https://github.com/tsmarsh/ozeecubed/releases/latest/download/ozeecubed-windows-x86_64.exe.zip" class="download-link">
+                        <div class="platform-icon">🪟</div>
+                        <div class="download-info">
+                            <h4>Windows</h4>
+                            <p>64-bit Windows 10/11</p>
+                        </div>
+                    </a>
+                </div>
+                <p style="margin-top: 1.5rem; color: #808080;">
+                    After downloading, extract the archive and run the executable. On macOS/Linux, you may need to make it executable with <code>chmod +x ozeecubed</code>
+                </p>
+            </div>
+        </section>
+
+        <section id="shortcuts">
+            <h2>Keyboard Shortcuts</h2>
+            <div class="keyboard-shortcuts">
+                <div class="shortcuts-grid">
+                    <div class="shortcut">
+                        <span>Zoom Out (Time)</span>
+                        <span class="key">+ / =</span>
+                    </div>
+                    <div class="shortcut">
+                        <span>Zoom In (Time)</span>
+                        <span class="key">-</span>
+                    </div>
+                    <div class="shortcut">
+                        <span>Increase Voltage Scale</span>
+                        <span class="key">↑</span>
+                    </div>
+                    <div class="shortcut">
+                        <span>Decrease Voltage Scale</span>
+                        <span class="key">↓</span>
+                    </div>
+                    <div class="shortcut">
+                        <span>Toggle Trigger</span>
+                        <span class="key">T</span>
+                    </div>
+                    <div class="shortcut">
+                        <span>Toggle Trigger Edge</span>
+                        <span class="key">E</span>
+                    </div>
+                    <div class="shortcut">
+                        <span>Increase Trigger Level</span>
+                        <span class="key">→</span>
+                    </div>
+                    <div class="shortcut">
+                        <span>Decrease Trigger Level</span>
+                        <span class="key">←</span>
+                    </div>
+                    <div class="shortcut">
+                        <span>Toggle Persistence</span>
+                        <span class="key">P</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="getting-started">
+            <h2>Getting Started</h2>
+            <div class="feature">
+                <h3>Quick Start</h3>
+                <ol style="margin-left: 2rem; color: #b0b0b0;">
+                    <li style="margin: 1rem 0;">Download and extract the binary for your platform</li>
+                    <li style="margin: 1rem 0;">Connect a microphone or audio input device</li>
+                    <li style="margin: 1rem 0;">Run <code>ozeecubed</code> (or <code>ozeecubed.exe</code> on Windows)</li>
+                    <li style="margin: 1rem 0;">Make some noise and watch the waveform appear!</li>
+                    <li style="margin: 1rem 0;">Use keyboard shortcuts to adjust time/voltage scales</li>
+                </ol>
+                <p style="margin-top: 1.5rem; color: #808080;">
+                    The oscilloscope will automatically detect and use your system's default audio input device.
+                    If no audio device is detected, it will display a test signal (440 Hz sine wave).
+                </p>
+            </div>
+        </section>
+
+        <section id="build">
+            <h2>Build from Source</h2>
+            <div class="feature">
+                <p style="margin-bottom: 1rem;">Want to build from source? It's easy with Rust:</p>
+                <pre style="background: #0a0a0a; padding: 1rem; border-radius: 4px; overflow-x: auto;"><code>git clone https://github.com/tsmarsh/ozeecubed.git
+cd ozeecubed
+cargo build --release
+./target/release/ozeecubed</code></pre>
+                <p style="margin-top: 1rem; color: #808080;">
+                    Requires Rust 1.70+ and platform-specific audio dependencies (ALSA on Linux, CoreAudio on macOS).
+                </p>
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        <p>Built with Rust 🦀 | <a href="https://github.com/tsmarsh/ozeecubed">GitHub</a> | <a href="https://github.com/tsmarsh/ozeecubed/issues">Report Issues</a></p>
+        <p style="margin-top: 0.5rem; color: #808080;">Open Source • MIT License</p>
+    </footer>
+</body>
+</html>
