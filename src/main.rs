@@ -77,7 +77,7 @@ impl OzScope {
         Task::none()
     }
 
-    fn view(&self) -> Element<Message> {
+    fn view(&self) -> Element<'_, Message> {
         let canvas = self.canvas.view(self.waveform.clone());
 
         let controls = build_controls(
