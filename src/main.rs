@@ -217,20 +217,17 @@ impl OzScope {
     fn update_audio(&mut self) {
         if let Some(ref audio_capture) = self.audio_capture {
             // Read ALL available samples for minimal latency
-            // Don't specify a limit - drain the buffer completely
             let new_samples = audio_capture.read_samples(usize::MAX);
 
             if !new_samples.is_empty() {
-                // Keep only recent samples for display - prioritize low latency over history
-                // Calculate how many samples we need for current time scale
-                let samples_needed = self.waveform.calculate_samples_per_screen();
-                // Keep 3x the screen width for trigger search and measurements
-                let max_buffer_size = (samples_needed * 3).max(4800);
-
-                // Append new samples
+                // Near-zero-latency mode: keep only what we need for one stable screen
+                // Trigger detection happens on current data, not historical accumulation
                 self.audio_buffer.extend_from_slice(&new_samples);
 
-                // Aggressively trim old data
+                // Keep exactly what we need: 1 screen + small margin for trigger search
+                let samples_needed = self.waveform.calculate_samples_per_screen();
+                let max_buffer_size = samples_needed + 200; // 200 samples = ~4ms margin
+
                 if self.audio_buffer.len() > max_buffer_size {
                     let to_remove = self.audio_buffer.len() - max_buffer_size;
                     self.audio_buffer.drain(0..to_remove);
