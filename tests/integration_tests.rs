@@ -18,10 +18,12 @@ fn test_oscilloscope_workflow() {
     waveform.update_samples(samples);
 
     // Create trigger settings
-    let mut trigger_settings = TriggerSettings::default();
-    trigger_settings.enabled = true;
-    trigger_settings.edge = TriggerEdge::Rising;
-    trigger_settings.level = 0.0;
+    let trigger_settings = TriggerSettings {
+        enabled: true,
+        edge: TriggerEdge::Rising,
+        level: 0.0,
+        ..Default::default()
+    };
 
     // Get display samples
     let display_samples = waveform.get_display_samples(&trigger_settings);
@@ -70,8 +72,10 @@ fn test_voltage_scale_changes_affect_normalization() {
     let samples = vec![1.0; 1000];
     waveform.update_samples(samples);
 
-    let mut trigger_settings = TriggerSettings::default();
-    trigger_settings.enabled = false; // Disable triggering for predictable results
+    let trigger_settings = TriggerSettings {
+        enabled: false,
+        ..Default::default()
+    };
 
     // Get display samples with default voltage scale (0.5 V/div)
     let display_samples_1 = waveform.get_display_samples(&trigger_settings);
@@ -104,16 +108,23 @@ fn test_trigger_edge_detection() {
     waveform.update_samples(samples);
 
     // Test rising edge trigger
-    let mut trigger_settings = TriggerSettings::default();
-    trigger_settings.enabled = true;
-    trigger_settings.edge = TriggerEdge::Rising;
-    trigger_settings.level = 0.0;
+    let rising_settings = TriggerSettings {
+        enabled: true,
+        edge: TriggerEdge::Rising,
+        level: 0.0,
+        ..Default::default()
+    };
 
-    let rising_samples = waveform.get_display_samples(&trigger_settings);
+    let rising_samples = waveform.get_display_samples(&rising_settings);
 
     // Test falling edge trigger
-    trigger_settings.edge = TriggerEdge::Falling;
-    let falling_samples = waveform.get_display_samples(&trigger_settings);
+    let falling_settings = TriggerSettings {
+        enabled: true,
+        edge: TriggerEdge::Falling,
+        level: 0.0,
+        ..Default::default()
+    };
+    let falling_samples = waveform.get_display_samples(&falling_settings);
 
     // Both should produce valid results
     assert!(!rising_samples.is_empty());
@@ -161,8 +172,10 @@ fn test_very_short_waveform() {
     let samples = vec![0.0, 1.0, 0.0];
     waveform.update_samples(samples);
 
-    let mut trigger_settings = TriggerSettings::default();
-    trigger_settings.enabled = false;
+    let trigger_settings = TriggerSettings {
+        enabled: false,
+        ..Default::default()
+    };
 
     let display_samples = waveform.get_display_samples(&trigger_settings);
 

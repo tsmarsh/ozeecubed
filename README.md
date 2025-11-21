@@ -1,5 +1,10 @@
 # OzeeCubed
 
+[![CI](https://github.com/tsmarsh/ozeecubed/workflows/CI/badge.svg)](https://github.com/tsmarsh/ozeecubed/actions/workflows/ci.yml)
+[![Release](https://github.com/tsmarsh/ozeecubed/workflows/Release/badge.svg)](https://github.com/tsmarsh/ozeecubed/actions/workflows/release.yml)
+[![License](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue.svg)](LICENSE)
+[![Rust Version](https://img.shields.io/badge/rust-1.70%2B-orange.svg)](https://www.rust-lang.org)
+
 A GPU-accelerated digital oscilloscope for real-time audio visualization, written in Rust.
 
 ## Features
@@ -171,9 +176,75 @@ This project is dual-licensed under MIT OR Apache-2.0.
 - Close other GPU-intensive applications
 - Try running in release mode: `cargo run --release`
 
+## Development
+
+### Running Tests
+
+```bash
+# Run all tests
+cargo test
+
+# Run with output
+cargo test -- --nocapture
+
+# Run specific test
+cargo test test_trigger_edge_detection
+
+# Run only unit tests
+cargo test --lib
+
+# Run only integration tests
+cargo test --test integration_tests
+```
+
+### CI/CD
+
+This project uses GitHub Actions for continuous integration and delivery:
+
+- **CI Pipeline** ([.github/workflows/ci.yml](.github/workflows/ci.yml)):
+  - Tests on Ubuntu, macOS, and Windows
+  - Runs `cargo test` in both debug and release modes
+  - Code formatting checks with `rustfmt`
+  - Linting with `clippy`
+  - Documentation builds
+  - Code coverage with `cargo-tarpaulin`
+  - Security audit with `cargo-audit`
+
+- **Release Pipeline** ([.github/workflows/release.yml](.github/workflows/release.yml)):
+  - Automatically triggered on version tags (`v*.*.*`)
+  - Builds release binaries for Linux (x86_64), macOS (x86_64, ARM64), and Windows (x86_64)
+  - Creates GitHub releases with compiled binaries
+
+### Creating a Release
+
+To create a new release:
+
+```bash
+# Update version in Cargo.toml
+# Commit changes
+git add Cargo.toml
+git commit -m "Bump version to 0.2.0"
+
+# Create and push tag
+git tag v0.2.0
+git push origin v0.2.0
+```
+
+The CI will automatically build and publish release artifacts.
+
 ## Contact
 
 For questions, issues, or feature requests, please open an issue on GitHub.
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit issues or pull requests.
+
+Before submitting a PR:
+1. Run `cargo fmt` to format your code
+2. Run `cargo clippy` to check for common mistakes
+3. Run `cargo test` to ensure all tests pass
+4. Add tests for new functionality
 
 ---
 

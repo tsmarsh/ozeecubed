@@ -247,9 +247,11 @@ mod tests {
         let samples = vec![-1.0, -0.5, 0.0, 0.5, 1.0, 0.5, 0.0, -0.5];
         waveform.update_samples(samples);
 
-        let mut settings = TriggerSettings::default();
-        settings.edge = TriggerEdge::Rising;
-        settings.level = 0.25;
+        let settings = TriggerSettings {
+            edge: TriggerEdge::Rising,
+            level: 0.25,
+            ..Default::default()
+        };
 
         let trigger_point = waveform.find_trigger_point(&settings);
         assert_eq!(trigger_point, 3); // Should trigger between 0.0 and 0.5
@@ -261,9 +263,11 @@ mod tests {
         let samples = vec![1.0, 0.5, 0.0, -0.5, -1.0, -0.5, 0.0, 0.5];
         waveform.update_samples(samples);
 
-        let mut settings = TriggerSettings::default();
-        settings.edge = TriggerEdge::Falling;
-        settings.level = 0.25;
+        let settings = TriggerSettings {
+            edge: TriggerEdge::Falling,
+            level: 0.25,
+            ..Default::default()
+        };
 
         let trigger_point = waveform.find_trigger_point(&settings);
         assert_eq!(trigger_point, 2); // Should trigger between 0.5 and 0.0
@@ -275,9 +279,11 @@ mod tests {
         let samples = vec![-1.0, -0.9, -0.8, -0.7, -0.6];
         waveform.update_samples(samples);
 
-        let mut settings = TriggerSettings::default();
-        settings.edge = TriggerEdge::Rising;
-        settings.level = 0.0;
+        let settings = TriggerSettings {
+            edge: TriggerEdge::Rising,
+            level: 0.0,
+            ..Default::default()
+        };
 
         let trigger_point = waveform.find_trigger_point(&settings);
         assert_eq!(trigger_point, 0); // No trigger found, should return 0
@@ -298,8 +304,10 @@ mod tests {
         let samples = vec![0.0, 0.5, 1.0, 0.5, 0.0];
         waveform.update_samples(samples);
 
-        let mut settings = TriggerSettings::default();
-        settings.enabled = false; // Disable triggering for simple test
+        let settings = TriggerSettings {
+            enabled: false,
+            ..Default::default()
+        };
 
         let display_samples = waveform.get_display_samples(&settings);
 
@@ -323,10 +331,12 @@ mod tests {
         }
         waveform.update_samples(samples);
 
-        let mut settings = TriggerSettings::default();
-        settings.enabled = true;
-        settings.edge = TriggerEdge::Rising;
-        settings.level = 0.0;
+        let settings = TriggerSettings {
+            enabled: true,
+            edge: TriggerEdge::Rising,
+            level: 0.0,
+            ..Default::default()
+        };
 
         let display_samples = waveform.get_display_samples(&settings);
         assert!(!display_samples.is_empty());
