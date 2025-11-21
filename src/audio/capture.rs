@@ -7,8 +7,8 @@ const BUFFER_SIZE: usize = 48000; // 1 second at 48kHz
 
 pub struct AudioCapture {
     _stream: Stream,
-    _buffer: Arc<Mutex<ringbuf::HeapProd<f32>>>,
-    _sample_rate: u32,
+    consumer: Arc<Mutex<ringbuf::HeapCons<f32>>>,
+    pub sample_rate: u32,
 }
 
 impl AudioCapture {
@@ -33,10 +33,11 @@ impl AudioCapture {
         println!("Channels: {}", config.channels());
 
         let ring_buffer = HeapRb::<f32>::new(BUFFER_SIZE);
-        let (producer, _consumer) = ring_buffer.split();
+        let (producer, consumer) = ring_buffer.split();
 
         let producer = Arc::new(Mutex::new(producer));
         let producer_clone = Arc::clone(&producer);
+        let consumer = Arc::new(Mutex::new(consumer));
 
         let channels = config.channels();
         let stream = Self::build_input_stream(&device, &config.into(), producer_clone, channels)?;
@@ -46,9 +47,26 @@ impl AudioCapture {
 
         Ok(AudioCapture {
             _stream: stream,
-            _buffer: producer,
-            _sample_rate: sample_rate,
+            consumer,
+            sample_rate,
         })
+    }
+
+    pub fn read_samples(&self, max_samples: usize) -> Vec<f32> {
+        if let Ok(mut consumer) = self.consumer.lock() {
+            let available = consumer.occupied_len();
+            let to_read = available.min(max_samples);
+
+            let mut samples = Vec::with_capacity(to_read);
+            for _ in 0..to_read {
+                if let Some(sample) = consumer.try_pop() {
+                    samples.push(sample);
+                }
+            }
+            samples
+        } else {
+            vec![]
+        }
     }
 
     fn build_input_stream(

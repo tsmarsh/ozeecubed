@@ -6,7 +6,6 @@ use audio::AudioCapture;
 use iced::widget::{column, container};
 use iced::{Element, Length, Subscription, Task, Theme};
 use oscilloscope::{TriggerSettings, WaveformData};
-use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
 use ui::controls::{build_controls, ControlMessage};
 use ui::WaveformCanvas;
@@ -22,8 +21,8 @@ struct OzScope {
     waveform: WaveformData,
     trigger_settings: TriggerSettings,
     canvas: WaveformCanvas,
-    _audio_capture: Option<AudioCapture>,
-    _audio_buffer: Arc<Mutex<Vec<f32>>>,
+    audio_capture: Option<AudioCapture>,
+    audio_buffer: Vec<f32>,
     last_update: Instant,
 }
 
@@ -53,8 +52,8 @@ impl OzScope {
                 waveform: WaveformData::new(sample_rate),
                 trigger_settings: TriggerSettings::default(),
                 canvas: WaveformCanvas::new(),
-                _audio_capture: audio_capture,
-                _audio_buffer: Arc::new(Mutex::new(Vec::new())),
+                audio_capture,
+                audio_buffer: Vec::new(),
                 last_update: Instant::now(),
             },
             Task::none(),
@@ -64,9 +63,7 @@ impl OzScope {
     fn update(&mut self, message: Message) -> Task<Message> {
         match message {
             Message::AudioUpdate => {
-                // For now, generate a test signal
-                // TODO: Connect to actual audio capture
-                self.generate_test_signal();
+                self.update_audio();
                 self.canvas.clear_cache();
             }
             Message::Control(control) => {
@@ -141,8 +138,33 @@ impl OzScope {
         }
     }
 
+    fn update_audio(&mut self) {
+        if let Some(ref audio_capture) = self.audio_capture {
+            // Read new samples from audio capture
+            let new_samples = audio_capture.read_samples(4800); // ~100ms at 48kHz
+
+            if !new_samples.is_empty() {
+                // Append new samples to buffer
+                self.audio_buffer.extend_from_slice(&new_samples);
+
+                // Keep buffer at a reasonable size (1 second of audio)
+                let max_buffer_size = audio_capture.sample_rate as usize;
+                if self.audio_buffer.len() > max_buffer_size {
+                    let excess = self.audio_buffer.len() - max_buffer_size;
+                    self.audio_buffer.drain(0..excess);
+                }
+
+                // Update waveform with current buffer
+                self.waveform.update_samples(self.audio_buffer.clone());
+            }
+        } else {
+            // Fallback: generate test signal if no audio capture
+            self.generate_test_signal();
+        }
+    }
+
     fn generate_test_signal(&mut self) {
-        // Generate a test sine wave for now
+        // Generate a test sine wave as fallback
         let sample_rate = self.waveform.sample_rate as f32;
         let frequency = 440.0; // A4 note
         let duration = 0.1; // 100ms of samples
