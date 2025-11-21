@@ -3,8 +3,9 @@ mod oscilloscope;
 mod ui;
 
 use audio::AudioCapture;
+use iced::keyboard::{self, Key};
 use iced::widget::{column, container};
-use iced::{Element, Length, Subscription, Task, Theme};
+use iced::{Element, Event, Length, Subscription, Task, Theme};
 use oscilloscope::{TriggerSettings, WaveformData};
 use std::time::{Duration, Instant};
 use ui::controls::{build_controls, ControlMessage};
@@ -30,6 +31,7 @@ struct OzScope {
 enum Message {
     AudioUpdate,
     Control(ControlMessage),
+    EventOccurred(Event),
 }
 
 impl OzScope {
@@ -70,6 +72,19 @@ impl OzScope {
                 self.handle_control(control);
                 self.canvas.clear_cache();
             }
+            Message::EventOccurred(event) => {
+                if let Event::Keyboard(keyboard::Event::KeyPressed {
+                    key,
+                    modifiers: _,
+                    ..
+                }) = event
+                {
+                    if let Some(control) = Self::key_to_control(&key) {
+                        self.handle_control(control);
+                        self.canvas.clear_cache();
+                    }
+                }
+            }
         }
         Task::none()
     }
@@ -97,8 +112,12 @@ impl OzScope {
     }
 
     fn subscription(&self) -> Subscription<Message> {
-        // Update at ~60 FPS
-        iced::time::every(Duration::from_millis(16)).map(|_instant| Message::AudioUpdate)
+        Subscription::batch(vec![
+            // Update at ~60 FPS
+            iced::time::every(Duration::from_millis(16)).map(|_instant| Message::AudioUpdate),
+            // Listen for keyboard events
+            iced::event::listen().map(Message::EventOccurred),
+        ])
     }
 
     fn theme(&self) -> Theme {
@@ -107,6 +126,37 @@ impl OzScope {
 }
 
 impl OzScope {
+    fn key_to_control(key: &Key) -> Option<ControlMessage> {
+        match key {
+            // Time scale controls
+            Key::Character(c) if c.as_str() == "+" || c.as_str() == "=" => {
+                Some(ControlMessage::IncreaseTimeScale)
+            }
+            Key::Character(c) if c.as_str() == "-" => Some(ControlMessage::DecreaseTimeScale),
+            // Voltage scale controls
+            Key::Named(keyboard::key::Named::ArrowUp) => {
+                Some(ControlMessage::IncreaseVoltageScale)
+            }
+            Key::Named(keyboard::key::Named::ArrowDown) => {
+                Some(ControlMessage::DecreaseVoltageScale)
+            }
+            // Trigger controls
+            Key::Character(c) if c.as_str() == "t" || c.as_str() == "T" => {
+                Some(ControlMessage::ToggleTrigger)
+            }
+            Key::Character(c) if c.as_str() == "e" || c.as_str() == "E" => {
+                Some(ControlMessage::ToggleTriggerEdge)
+            }
+            Key::Named(keyboard::key::Named::ArrowRight) => {
+                Some(ControlMessage::IncreaseTriggerLevel)
+            }
+            Key::Named(keyboard::key::Named::ArrowLeft) => {
+                Some(ControlMessage::DecreaseTriggerLevel)
+            }
+            _ => None,
+        }
+    }
+
     fn handle_control(&mut self, control: ControlMessage) {
         match control {
             ControlMessage::IncreaseTimeScale => {

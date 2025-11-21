@@ -84,7 +84,19 @@ cargo run --release
 
 ### Keyboard Shortcuts
 
-(To be implemented in future versions)
+#### Time Base
+- `+` or `=` - Increase time/division (zoom out horizontally)
+- `-` - Decrease time/division (zoom in horizontally)
+
+#### Voltage Scale
+- `↑` (Up Arrow) - Increase volts/division (zoom out vertically)
+- `↓` (Down Arrow) - Decrease volts/division (zoom in vertically)
+
+#### Trigger
+- `T` - Toggle trigger on/off
+- `E` - Toggle trigger edge (rising/falling)
+- `→` (Right Arrow) - Increase trigger level
+- `←` (Left Arrow) - Decrease trigger level
 
 ## Architecture
 
@@ -106,10 +118,10 @@ OzeeCubed is built with a modular architecture:
 ### Planned Features
 
 #### Phase 2: Enhanced Functionality
-- [ ] Real audio capture integration (currently using test signal)
+- [x] Real audio capture integration
+- [x] Keyboard shortcuts for all controls
 - [ ] Multi-channel display (stereo L/R separate traces)
 - [ ] Audio device selection UI
-- [ ] Keyboard shortcuts for all controls
 - [ ] Waveform persistence/decay effects (phosphor-like)
 
 #### Phase 3: Measurements & Analysis
