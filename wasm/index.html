@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OzeeCubed Web - GPU Oscilloscope</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: #0a0a0a;
+            color: #00ff41;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        #loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            font-size: 1.5em;
+        }
+
+        .spinner {
+            border: 4px solid rgba(0, 255, 65, 0.1);
+            border-top: 4px solid #00ff41;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        #app {
+            display: none;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        #canvas-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #000;
+        }
+
+        canvas {
+            max-width: 100%;
+            max-height: 100%;
+            border: 1px solid #00ff41;
+        }
+
+        #controls {
+            background: #0a0a0a;
+            border-top: 2px solid #00ff41;
+            padding: 15px;
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .control-group label {
+            font-size: 0.9em;
+            color: #00ff41;
+        }
+
+        .control-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        button {
+            background: transparent;
+            border: 1px solid #00ff41;
+            color: #00ff41;
+            padding: 5px 15px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-size: 1em;
+        }
+
+        button:hover {
+            background: rgba(0, 255, 65, 0.1);
+        }
+
+        button.active {
+            background: rgba(0, 255, 65, 0.3);
+        }
+
+        input[type="range"] {
+            width: 150px;
+            height: 4px;
+            background: #00ff41;
+            outline: none;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+
+        input[type="range"]:hover {
+            opacity: 1;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 15px;
+            height: 15px;
+            background: #00ff41;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 15px;
+            height: 15px;
+            background: #00ff41;
+            cursor: pointer;
+            border-radius: 50%;
+            border: none;
+        }
+
+        .value-display {
+            min-width: 80px;
+            text-align: center;
+            font-size: 0.9em;
+        }
+
+        #info-banner {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(10, 10, 10, 0.95);
+            border: 2px solid #00ff41;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            z-index: 1000;
+            display: none;
+        }
+
+        #info-banner h3 {
+            margin-bottom: 10px;
+        }
+
+        #info-banner button {
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div id="loading">
+        <div class="spinner"></div>
+        <div>Loading OzeeCubed Web...</div>
+        <div style="font-size: 0.6em; margin-top: 10px;">Compiling WASM module</div>
+    </div>
+
+    <div id="app">
+        <div id="canvas-container">
+            <canvas id="oscilloscope" width="1920" height="1080"></canvas>
+        </div>
+
+        <div id="controls">
+            <div class="control-group">
+                <label>Time/Div</label>
+                <div class="control-row">
+                    <button id="time-dec">-</button>
+                    <span class="value-display" id="time-value">10.00 ms</span>
+                    <button id="time-inc">+</button>
+                </div>
+                <input type="range" id="time-slider" min="-5" max="0" step="0.01" value="-2">
+            </div>
+
+            <div class="control-group">
+                <label>Volts/Div</label>
+                <div class="control-row">
+                    <button id="volts-dec">-</button>
+                    <span class="value-display" id="volts-value">1.00 V</span>
+                    <button id="volts-inc">+</button>
+                </div>
+                <input type="range" id="volts-slider" min="-2" max="1" step="0.01" value="0">
+            </div>
+
+            <div class="control-group">
+                <label>Trigger</label>
+                <div class="control-row">
+                    <button id="trigger-toggle">OFF</button>
+                    <button id="trigger-edge">Rising</button>
+                </div>
+                <div class="control-row">
+                    <button id="trigger-dec">-</button>
+                    <span class="value-display" id="trigger-value">0.00 V</span>
+                    <button id="trigger-inc">+</button>
+                </div>
+                <input type="range" id="trigger-slider" min="-10" max="10" step="0.1" value="0">
+            </div>
+        </div>
+    </div>
+
+    <div id="info-banner">
+        <h3>🎤 Microphone Access Required</h3>
+        <p>OzeeCubed needs microphone access to capture audio signals.</p>
+        <p style="margin-top: 10px; font-size: 0.9em;">Click "Allow" when prompted by your browser.</p>
+        <button onclick="document.getElementById('info-banner').style.display='none'">Got it!</button>
+    </div>
+
+    <script type="module">
+        import init, { OzScopeWasm } from './pkg/ozeecubed_wasm.js';
+
+        let scope = null;
+        let animationId = null;
+
+        async function run() {
+            try {
+                // Initialize WASM
+                await init();
+                console.log('WASM initialized');
+
+                // Create oscilloscope instance
+                scope = new OzScopeWasm();
+                console.log('OzScope created');
+
+                // Initialize renderer
+                scope.init_renderer('oscilloscope');
+                console.log('Renderer initialized');
+
+                // Hide loading, show app
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('app').style.display = 'flex';
+
+                // Show info banner
+                document.getElementById('info-banner').style.display = 'block';
+
+                // Initialize audio (will prompt for permission)
+                try {
+                    await scope.init_audio();
+                    console.log('Audio initialized');
+                } catch (e) {
+                    console.error('Failed to initialize audio:', e);
+                    alert('Failed to access microphone. Please check permissions.');
+                }
+
+                // Set up controls
+                setupControls();
+
+                // Start render loop
+                function render() {
+                    scope.update();
+                    scope.render();
+                    animationId = requestAnimationFrame(render);
+                }
+                render();
+
+            } catch (error) {
+                console.error('Failed to initialize:', error);
+                document.getElementById('loading').innerHTML = `
+                    <div style="color: #ff0000;">
+                        Failed to load OzeeCubed<br>
+                        <span style="font-size: 0.6em;">${error.message}</span>
+                    </div>
+                `;
+            }
+        }
+
+        function setupControls() {
+            // Time/Div controls
+            const timeSlider = document.getElementById('time-slider');
+            const timeValue = document.getElementById('time-value');
+            const timeInc = document.getElementById('time-inc');
+            const timeDec = document.getElementById('time-dec');
+
+            function updateTime() {
+                const value = Math.pow(10, parseFloat(timeSlider.value));
+                scope.set_time_per_div(value);
+                timeValue.textContent = `${(value * 1000).toFixed(2)} ms`;
+            }
+
+            timeSlider.addEventListener('input', updateTime);
+            timeInc.addEventListener('click', () => {
+                timeSlider.value = Math.min(0, parseFloat(timeSlider.value) + 0.1).toString();
+                updateTime();
+            });
+            timeDec.addEventListener('click', () => {
+                timeSlider.value = Math.max(-5, parseFloat(timeSlider.value) - 0.1).toString();
+                updateTime();
+            });
+            updateTime();
+
+            // Volts/Div controls
+            const voltsSlider = document.getElementById('volts-slider');
+            const voltsValue = document.getElementById('volts-value');
+            const voltsInc = document.getElementById('volts-inc');
+            const voltsDec = document.getElementById('volts-dec');
+
+            function updateVolts() {
+                const value = Math.pow(10, parseFloat(voltsSlider.value));
+                scope.set_volts_per_div(value);
+                voltsValue.textContent = `${value.toFixed(2)} V`;
+            }
+
+            voltsSlider.addEventListener('input', updateVolts);
+            voltsInc.addEventListener('click', () => {
+                voltsSlider.value = Math.min(1, parseFloat(voltsSlider.value) + 0.1).toString();
+                updateVolts();
+            });
+            voltsDec.addEventListener('click', () => {
+                voltsSlider.value = Math.max(-2, parseFloat(voltsSlider.value) - 0.1).toString();
+                updateVolts();
+            });
+            updateVolts();
+
+            // Trigger controls
+            const triggerToggle = document.getElementById('trigger-toggle');
+            const triggerSlider = document.getElementById('trigger-slider');
+            const triggerValue = document.getElementById('trigger-value');
+            const triggerInc = document.getElementById('trigger-inc');
+            const triggerDec = document.getElementById('trigger-dec');
+
+            let triggerEnabled = false;
+            triggerToggle.addEventListener('click', () => {
+                triggerEnabled = !triggerEnabled;
+                scope.set_trigger_enabled(triggerEnabled);
+                triggerToggle.textContent = triggerEnabled ? 'ON' : 'OFF';
+                triggerToggle.classList.toggle('active', triggerEnabled);
+            });
+
+            function updateTrigger() {
+                const value = parseFloat(triggerSlider.value);
+                scope.set_trigger_level(value);
+                triggerValue.textContent = `${value.toFixed(2)} V`;
+            }
+
+            triggerSlider.addEventListener('input', updateTrigger);
+            triggerInc.addEventListener('click', () => {
+                triggerSlider.value = Math.min(10, parseFloat(triggerSlider.value) + 0.5).toString();
+                updateTrigger();
+            });
+            triggerDec.addEventListener('click', () => {
+                triggerSlider.value = Math.max(-10, parseFloat(triggerSlider.value) - 0.5).toString();
+                updateTrigger();
+            });
+            updateTrigger();
+        }
+
+        run();
+    </script>
+</body>
+</html>

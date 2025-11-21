@@ -1,0 +1,46 @@
+[package]
+name = "ozeecubed-wasm"
+version = "0.1.0"
+edition = "2021"
+authors = ["OzeeCubed Contributors"]
+description = "WebAssembly oscilloscope application for browsers"
+license = "MIT OR Apache-2.0"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+ozeecubed_core = { path = "../core" }
+wasm-bindgen = "0.2"
+wasm-bindgen-futures = "0.4"
+web-sys = { version = "0.3", features = [
+    "AudioContext",
+    "AudioNode",
+    "AudioDestinationNode",
+    "MediaStream",
+    "MediaStreamAudioSourceNode",
+    "MediaStreamConstraints",
+    "MediaDevices",
+    "Navigator",
+    "Window",
+    "Document",
+    "HtmlCanvasElement",
+    "HtmlInputElement",
+    "HtmlElement",
+    "Element",
+    "EventTarget",
+    "Event",
+    "InputEvent",
+    "console",
+    "AudioProcessingEvent",
+    "AudioBuffer",
+    "ScriptProcessorNode",
+    "WebGlRenderingContext",
+    "WebGlProgram",
+    "WebGlShader",
+    "WebGlBuffer",
+    "WebGlUniformLocation",
+] }
+js-sys = "0.3"
+console_error_panic_hook = "0.1"
+getrandom = { version = "0.2", features = ["js"] }
