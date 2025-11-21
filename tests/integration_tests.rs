@@ -1,5 +1,5 @@
-use ozeecubed::oscilloscope::{TriggerSettings, WaveformData};
 use ozeecubed::oscilloscope::trigger::{TriggerEdge, TriggerMode};
+use ozeecubed::oscilloscope::{TriggerSettings, WaveformData};
 
 #[test]
 fn test_oscilloscope_workflow() {
@@ -82,7 +82,9 @@ fn test_voltage_scale_changes_affect_normalization() {
     let display_samples_2 = waveform.get_display_samples(&trigger_settings);
 
     // With larger voltage scale, same voltage appears smaller (lower y value)
-    if let (Some((_x1, y1)), Some((_x2, y2))) = (display_samples_1.first(), display_samples_2.first()) {
+    if let (Some((_x1, y1)), Some((_x2, y2))) =
+        (display_samples_1.first(), display_samples_2.first())
+    {
         assert!(y2.abs() < y1.abs());
     }
 }

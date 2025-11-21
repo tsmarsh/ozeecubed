@@ -1,7 +1,7 @@
 pub mod controls;
 
-use iced::widget::canvas::{self, Cache, Canvas, Frame, Geometry, Path, Program, Stroke};
 use iced::mouse;
+use iced::widget::canvas::{self, Cache, Canvas, Frame, Geometry, Path, Program, Stroke};
 use iced::{Color, Point, Rectangle, Size, Theme};
 
 use crate::oscilloscope::WaveformData;

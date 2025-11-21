@@ -103,8 +103,7 @@ impl OzScope {
         // Update at ~60 FPS
         struct FrameTick;
 
-        iced::time::every(Duration::from_millis(16))
-            .map(|_instant| Message::AudioUpdate)
+        iced::time::every(Duration::from_millis(16)).map(|_instant| Message::AudioUpdate)
     }
 
     fn theme(&self) -> Theme {

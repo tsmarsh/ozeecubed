@@ -23,8 +23,7 @@ pub fn build_controls<'a>(
         text("Time/Div").size(14),
         row![
             button("-").on_press(ControlMessage::DecreaseTimeScale),
-            text(format!("{:.2} ms", time_per_div * 1000.0))
-                .width(Length::Fixed(80.0)),
+            text(format!("{:.2} ms", time_per_div * 1000.0)).width(Length::Fixed(80.0)),
             button("+").on_press(ControlMessage::IncreaseTimeScale),
         ]
         .spacing(5)

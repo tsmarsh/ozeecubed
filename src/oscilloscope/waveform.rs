@@ -12,8 +12,8 @@ impl WaveformData {
     pub fn new(sample_rate: u32) -> Self {
         WaveformData {
             samples: Vec::new(),
-            time_per_division: 0.001,  // 1ms per division
-            volts_per_division: 0.5,   // 0.5V per division
+            time_per_division: 0.001, // 1ms per division
+            volts_per_division: 0.5,  // 0.5V per division
             sample_rate,
         }
     }

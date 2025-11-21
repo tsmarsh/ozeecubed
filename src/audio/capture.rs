@@ -25,7 +25,10 @@ impl AudioCapture {
 
         let sample_rate = config.sample_rate().0;
 
-        println!("Using audio device: {}", device.name().unwrap_or_else(|_| "Unknown".to_string()));
+        println!(
+            "Using audio device: {}",
+            device.name().unwrap_or_else(|_| "Unknown".to_string())
+        );
         println!("Sample rate: {} Hz", sample_rate);
         println!("Channels: {}", config.channels());
 
@@ -37,7 +40,9 @@ impl AudioCapture {
 
         let channels = config.channels();
         let stream = Self::build_input_stream(&device, &config.into(), producer_clone, channels)?;
-        stream.play().map_err(|e| format!("Failed to play stream: {}", e))?;
+        stream
+            .play()
+            .map_err(|e| format!("Failed to play stream: {}", e))?;
 
         Ok(AudioCapture {
             _stream: stream,

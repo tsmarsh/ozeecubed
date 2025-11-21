@@ -16,7 +16,7 @@ pub struct TriggerSettings {
     pub enabled: bool,
     pub mode: TriggerMode,
     pub edge: TriggerEdge,
-    pub level: f32,  // Voltage level for trigger
+    pub level: f32, // Voltage level for trigger
 }
 
 impl Default for TriggerSettings {
