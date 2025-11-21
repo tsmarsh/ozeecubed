@@ -364,7 +364,10 @@ mod tests {
 
         let measured = freq.unwrap();
         // Allow 1% error tolerance
-        assert!((measured - 440.0).abs() < 5.0, "Expected ~440Hz, got {measured}");
+        assert!(
+            (measured - 440.0).abs() < 5.0,
+            "Expected ~440Hz, got {measured}"
+        );
     }
 
     #[test]

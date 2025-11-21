@@ -74,9 +74,7 @@ impl OzScope {
             }
             Message::EventOccurred(event) => {
                 if let Event::Keyboard(keyboard::Event::KeyPressed {
-                    key,
-                    modifiers: _,
-                    ..
+                    key, modifiers: _, ..
                 }) = event
                 {
                     if let Some(control) = Self::key_to_control(&key) {
@@ -137,9 +135,7 @@ impl OzScope {
             }
             Key::Character(c) if c.as_str() == "-" => Some(ControlMessage::DecreaseTimeScale),
             // Voltage scale controls
-            Key::Named(keyboard::key::Named::ArrowUp) => {
-                Some(ControlMessage::IncreaseVoltageScale)
-            }
+            Key::Named(keyboard::key::Named::ArrowUp) => Some(ControlMessage::IncreaseVoltageScale),
             Key::Named(keyboard::key::Named::ArrowDown) => {
                 Some(ControlMessage::DecreaseVoltageScale)
             }

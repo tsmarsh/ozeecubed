@@ -78,10 +78,15 @@ pub fn build_controls<'a>(
     .spacing(5);
 
     container(
-        row![time_controls, voltage_controls, trigger_controls, measurements]
-            .spacing(20)
-            .padding(10)
-            .align_y(Alignment::Start),
+        row![
+            time_controls,
+            voltage_controls,
+            trigger_controls,
+            measurements
+        ]
+        .spacing(20)
+        .padding(10)
+        .align_y(Alignment::Start),
     )
     .into()
 }
