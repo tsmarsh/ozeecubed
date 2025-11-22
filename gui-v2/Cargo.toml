@@ -1,0 +1,21 @@
+[package]
+name = "ozeecubed-gui-v2"
+version = "0.1.0"
+edition = "2021"
+authors = ["OzeeCubed Contributors"]
+description = "Multi-window GPU oscilloscope application (winit + wgpu)"
+license = "MIT OR Apache-2.0"
+
+[[bin]]
+name = "ozeecubed-gui-v2"
+path = "src/main.rs"
+
+[dependencies]
+ozeecubed_core = { path = "../core" }
+winit = "0.30"
+wgpu = "0.19"
+pollster = "0.3"
+rustfft = "6.2"
+bytemuck = { version = "1.14", features = ["derive"] }
+glam = "0.25"
+env_logger = "0.11"
